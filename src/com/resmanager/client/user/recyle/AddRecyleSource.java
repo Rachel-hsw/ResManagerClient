@@ -21,6 +21,10 @@ import com.resmanager.client.model.RecyleLabelListModel;
 import com.resmanager.client.model.RecyleLabelModel;
 import com.resmanager.client.model.ResultModel;
 import com.resmanager.client.model.ScanBimpModel;
+import com.resmanager.client.system.QueryConfigAsyncTask;
+import com.resmanager.client.system.QueryConfigModel;
+import com.resmanager.client.system.QueryConfigResult;
+import com.resmanager.client.system.QueryConfigAsyncTask.GetqueryConfigListener;
 import com.resmanager.client.user.order.UploadCache;
 import com.resmanager.client.user.recyle.GetLabelByCustomerListAsyncTask.GetLabelByCustomerListener;
 import com.resmanager.client.user.recyle.RecoveryImageAsyncTask.UploadRecyleResourceListener;
@@ -41,6 +45,8 @@ public class AddRecyleSource extends TopContainActivity implements OnClickListen
 	private Bitmap recyleImg;
 	private CustomDialog recyleDialog;
 	private String workId;
+	private int Flag;
+	private int SWITCH_QR_CODE=1;//送货扫描二维码是否显示的开关,1是不显示
 
 	/*
 	 * (非 Javadoc) <p>Title: onClick</p> <p>Description: </p>
@@ -70,7 +76,7 @@ public class AddRecyleSource extends TopContainActivity implements OnClickListen
 			Tools.takePhoto(this);
 			break;
 		case R.id.ok_btn:
-			if (selectedLabelModels.size() == 0) {
+			if (selectedLabelModels.size() == 0&&SWITCH_QR_CODE!=1) {
 				Tools.showToast(this, "请选择需要回收的标签");
 			} else if (recyleImg == null) {
 				Tools.showToast(this, "请对需要回收的货物进行拍照");
@@ -175,19 +181,29 @@ public class AddRecyleSource extends TopContainActivity implements OnClickListen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+	
 		workId = getIntent().getExtras().getString("workId");
 		customerId = getIntent().getExtras().getString("customerId");
+//		Flag=getIntent().getExtras().getInt("Flag");
 		ImageView leftImg = (ImageView) topView.findViewById(R.id.title_left_img);
 		leftImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
 		titleContent.setText("添加货物");
 		choose_flag_txt = (TextView) centerView.findViewById(R.id.choose_flag_txt);
+		   if (SWITCH_QR_CODE==1) {
+			   choose_flag_txt.setVisibility(View.GONE);	
+			}
+		
 		choose_flag_txt.setOnClickListener(this);
 		source_lisview = (DefineListView) centerView.findViewById(R.id.source_lisview);
 		resource_img = (ImageView) centerView.findViewById(R.id.resource_img);
 		resource_img.setOnClickListener(this);
 		centerView.findViewById(R.id.ok_btn).setOnClickListener(this);
+		
+		
 	}
+
+
 
 	/**
 	 * 
@@ -198,6 +214,28 @@ public class AddRecyleSource extends TopContainActivity implements OnClickListen
 	 * @throws
 	 */
 	private void getLabelByCustomId() {
+		QueryConfigAsyncTask queryConfigAsyncTask = new QueryConfigAsyncTask(this, 4);
+		queryConfigAsyncTask.setqueryConfigListener(new GetqueryConfigListener() {
+			
+			@Override
+			public void getqueryConfigResult(QueryConfigResult queryConfigResult) {
+				// TODO Auto-generated method stub
+				if (queryConfigResult != null) {
+					if (queryConfigResult.getResult().equals("true")) {
+						
+						Flag=queryConfigResult.getData().get(0).getState();
+						}else {
+						Tools.showToast(AddRecyleSource.this,queryConfigResult.getDescription());
+					}
+				} else {
+					Tools.showToast(AddRecyleSource.this, "样式获取失败，请检查网络");
+				}
+				}
+			
+	
+		});
+		queryConfigAsyncTask.execute();
+		
 		GetLabelByCustomerListAsyncTask getLabelByCustomerListAsyncTask = new GetLabelByCustomerListAsyncTask(this, customerId, workId, "", true);
 		getLabelByCustomerListAsyncTask.setGetLabelByCustomerListener(new GetLabelByCustomerListener() {
 
@@ -208,7 +246,13 @@ public class AddRecyleSource extends TopContainActivity implements OnClickListen
 						if (recyleLabelListModel.getData() != null) {
 							recyleLabelModels = recyleLabelListModel.getData();
 						}
-						Intent intent = new Intent(AddRecyleSource.this, ChooseResourceActivity.class);
+						Intent intent=null;
+						if(Flag==1){
+							intent= new Intent(AddRecyleSource.this, ChooseMoreResourceActivity.class);
+						}else{
+							intent= new Intent(AddRecyleSource.this, ChooseResourceActivity.class);
+						}
+						
 						intent.putExtra("recyleLabelModels", recyleLabelModels);
 						intent.putExtra("selectedLabelModels", selectedLabelModels);
 						intent.putExtra("customerId", customerId);

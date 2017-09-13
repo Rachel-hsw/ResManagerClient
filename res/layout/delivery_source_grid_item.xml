@@ -22,7 +22,7 @@
         android:textColor="@color/drak_gray"
         android:textSize="@dimen/sixteen_size"
         android:textStyle="bold"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/goods_type_name_txt"
@@ -36,7 +36,8 @@
         android:lines="2"
         android:text="抗飞溅DTY油迹（TF-702B）"
         android:textColor="@color/drak_gray"
-        android:textStyle="italic" />
+        android:textStyle="italic" 
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/goods_package_type_txt"
@@ -51,6 +52,6 @@
         android:text="170kg塑桶"
         android:textColor="@color/drak_gray"
         android:textStyle="italic"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 </LinearLayout>

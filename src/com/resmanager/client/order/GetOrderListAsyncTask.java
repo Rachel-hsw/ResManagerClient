@@ -75,18 +75,18 @@ public class GetOrderListAsyncTask extends AsyncTask<Void, Void, String> {
 	protected String doInBackground(Void... arg0) {
 		WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.GET_ORDER_LIST);
 		ws.addProperty("UserKey", this.userKey);
-		ws.addProperty("OrderStateCode", this.orderState);
-		ws.addProperty("IsUsed", isUsed);
-		ws.addProperty("UserID", userId);
-		ws.addProperty("ordercustomer", ordercustomer);
-		ws.addProperty("Saleoid", Saleoid);
-		ws.addProperty("Town", Town);
-		ws.addProperty("Packtype", Packtype);
-		ws.addProperty("StartDate", StartDate);
-		ws.addProperty("EndDate", EndDate);
-		ws.addProperty("Days", Days);
-		ws.addProperty("DayType", DayType);
-		ws.addProperty("saler", saler);
+		ws.addProperty("OrderStateCode", this.orderState);//0
+		ws.addProperty("IsUsed", isUsed);//0
+		ws.addProperty("UserID", userId);//''
+		ws.addProperty("ordercustomer", ordercustomer);//''
+		ws.addProperty("Saleoid", Saleoid);//''
+		ws.addProperty("Town", Town);//''
+		ws.addProperty("Packtype", Packtype);//''
+		ws.addProperty("StartDate", StartDate);//''
+		ws.addProperty("EndDate", EndDate);//''
+		ws.addProperty("Days", Days);//''
+		ws.addProperty("DayType", DayType);//-1
+		ws.addProperty("saler", saler);//孟庆宇
 		ws.addProperty("pageSize",ContactsUtils.PAGE_SIZE);// ContactsUtils.PAGE_SIZE
 		ws.addProperty("pageIndex", this.currentPage);
 

@@ -36,9 +36,9 @@ public class GetDriverPositionListAsyncTask extends AsyncTask<Void, Void, String
 	private GetUserLocationListListener getUserLocationListListener;
 	private boolean isShowDialog;
 
-	public GetDriverPositionListAsyncTask(Context context, boolean isShowDialog) {
+	public GetDriverPositionListAsyncTask(Context context) {
 		this.context = context;
-		this.isShowDialog = isShowDialog;
+		
 	}
 
 	@Override
@@ -72,26 +72,24 @@ public class GetDriverPositionListAsyncTask extends AsyncTask<Void, Void, String
 			e.printStackTrace();
 			getUserLocationListListener.onFaile();
 		}
-		if (isShowDialog) {
-			if (this.loadingDialog != null && this.loadingDialog.isShowing()) {
-				this.loadingDialog.cancel();
-				this.loadingDialog = null;
-			}
+		if (this.loadingDialog != null && this.loadingDialog.isShowing()) {
+			this.loadingDialog.dismiss();
+			this.loadingDialog = null;
 		}
+
+		
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		if (isShowDialog) {
-			if (this.loadingDialog == null) {
-				this.loadingDialog = CommonView.LoadingDialog(context);
-			}
-			if (this.loadingDialog.isShowing() == false) {
-				this.loadingDialog.show();
-			}
+		if (this.loadingDialog == null) {
+			this.loadingDialog = CommonView.LoadingDialog(context);
 		}
+		this.loadingDialog.show();
 	}
+		
+	
 
 	public GetUserLocationListListener getGetUserLocationListListener() {
 		return getUserLocationListListener;

@@ -31,12 +31,18 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
+import com.resmanager.client.home.HomePageActivity;
 import com.resmanager.client.model.CustomerListModel;
 import com.resmanager.client.model.CustomerModel;
 import com.resmanager.client.model.RecyleLabelListModel;
+import com.resmanager.client.model.ResultModel;
+import com.resmanager.client.user.order.unloading.DriverList;
 import com.resmanager.client.user.recyle.GetCustomerListAsyncTask.GetCustomerListListener;
 import com.resmanager.client.user.recyle.GetLabelByCustomerListAsyncTask.GetLabelByCustomerListener;
+import com.resmanager.client.user.recyle.GetRecyleNumberAsyncTask.GetRecyleNumberListener;
+import com.resmanager.client.user.recyle.GetTuihuiNumberAsyncTask.GetTuihuiNumberListener;
 import com.resmanager.client.user.recyle.SideBar.OnTouchingLetterChangedListener;
+import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.Tools;
 import com.resmanager.client.view.CustomDialog;
 import com.resmanager.client.view.CustomDialog.ToDoListener;
@@ -74,7 +80,8 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 	 */
 	private PinyinComparator pinyinComparator;
 	private CustomDialog noticeDialog;
-
+    private int DriverID;
+	private String userName;
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -82,7 +89,15 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 			this.finish();
 			break;
 		case R.id.title_right_img:
-			showNoticeDialog();
+			if (getIntent().getExtras().getString("father").equals("tuihui")) {
+				  Intent searchIntent = new Intent(ChooseCustomerActivity.this, DriverList.class);
+				  searchIntent.putExtra("father", "daituihui");
+                  ChooseCustomerActivity.this.startActivity(searchIntent);
+			}else{
+				showNoticeDialog();
+			
+			}
+		
 			break;
 		default:
 			break;
@@ -133,7 +148,14 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 	protected View getCenterView() {
 		return inflater.inflate(R.layout.activity_add_customer, null);
 	}
-
+/*@Override
+protected void onRestart() {
+	// TODO Auto-generated method stub
+	super.onRestart();
+	SourceDateList.clear();
+	getCustomerByNet(false);
+	adapter.notifyDataSetChanged();
+}*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -143,12 +165,28 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 		leftImg.setOnClickListener(this);
 		ImageView rightImg = (ImageView) topView.findViewById(R.id.title_right_img);
 		rightImg.setVisibility(View.VISIBLE);
-		rightImg.setImageResource(R.drawable.question);
+		if (getIntent().getExtras().getString("father").equals("tuihui")) {
+			rightImg.setImageResource(R.drawable.search);
+			
+		}else{
+		
+			rightImg.setImageResource(R.drawable.question);
+		}
+		
 		rightImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
 		titleContent.setText("客户列表");
+			if (getIntent().getExtras().getString("userId")!=null) {
+				DriverID=Integer.parseInt(getIntent().getExtras().getString("userId"));
+				userName=getIntent().getExtras().getString("userName");
+			}
 		inits();
 		getCustomerByNet(false);
+		if (getIntent().getExtras().getString("father").equals("diver")) {
+			titleContent.setText(userName+"的回收列表");
+		}
+		
+		
 
 	}
 
@@ -183,32 +221,26 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// 这里要利用adapter.getItem(position)来获取当前position所对应的对象
-				final CustomerModel customerModel = (CustomerModel) adapter.getItem(position);
-				GetLabelByCustomerListAsyncTask getLabelByCustomerListAsyncTask = new GetLabelByCustomerListAsyncTask(ChooseCustomerActivity.this,
-						customerModel.getCustomerID(), "", "", true);
-				getLabelByCustomerListAsyncTask.setGetLabelByCustomerListener(new GetLabelByCustomerListener() {
-
-					@Override
-					public void getLabelByCustomerResult(RecyleLabelListModel recyleLabelListModel) {
-						if (recyleLabelListModel != null) {
-							if (recyleLabelListModel.getResult().equals("true")) {
-								if (recyleLabelListModel.getData().size() > 0) {
-									Intent recyleIntent = new Intent(ChooseCustomerActivity.this, RecyleActivity.class);
-									recyleIntent.putExtra("customerModel", customerModel);
-									startActivity(recyleIntent);
-								} else {
-									Tools.showToast(ChooseCustomerActivity.this, "该客户暂时没有桶需要回收");
-								}
-							} else {
-								Tools.showToast(ChooseCustomerActivity.this, "该客户暂时没有桶需要回收");
-							}
-						} else {
-							Tools.showToast(ChooseCustomerActivity.this, "获取客户信息获取失败，请检查网络");
-						}
-					}
-				});
-				getLabelByCustomerListAsyncTask.execute();
-
+			final CustomerModel customerModel = (CustomerModel) adapter.getItem(position);
+		
+			if (getIntent().getExtras().getString("father").equals("recyle")) {
+		     Intent recyleIntent = new Intent(ChooseCustomerActivity.this, RecyleActivity.class);
+			 recyleIntent.putExtra("customerModel", customerModel);
+			 startActivity(recyleIntent);
+			}else  if(getIntent().getExtras().getString("father").equals("tuihui")||getIntent().getExtras().getString("father").equals("diver")){
+				
+			 DriverID=ContactsUtils.userDetailModel.getUserId();
+				if (getIntent().getExtras().getString("userId")!=null) {
+							DriverID=Integer.parseInt(getIntent().getExtras().getString("userId"));
+				}
+									 Intent tuihuiIntent = new Intent(ChooseCustomerActivity.this, TuiHuiActivity2.class);
+									 tuihuiIntent.putExtra("customerModel", customerModel);
+									 tuihuiIntent.putExtra("userId", String.valueOf(DriverID));
+									 startActivity(tuihuiIntent);
+				
+			}
+				 
+					
 			}
 		});
 
@@ -223,13 +255,14 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 	 * @throws
 	 */
 	private void getCustomerByNet(boolean isGetFromNet) {
-		GetCustomerListAsyncTask getCustomerListAsyncTask = new GetCustomerListAsyncTask(this, "", 1, isGetFromNet);
+		GetCustomerListAsyncTask getCustomerListAsyncTask = new GetCustomerListAsyncTask(this, "", 1, isGetFromNet,getIntent().getExtras().getString("father"),DriverID);
 		getCustomerListAsyncTask.setGetCustomerListListener(new GetCustomerListListener() {
 
 			@Override
 			public void getCustomerListResult(CustomerListModel customerListModel) {
+			
 				if (customerListModel != null) {
-					if (customerListModel.getResult().equals("true")) {
+					if (customerListModel.getResult().equals("true")&&customerListModel.getData().size()>0) {
 						SourceDateList = customerListModel.getData();
 						// 根据a-z进行排序源数据
 						Collections.sort(SourceDateList, pinyinComparator);
@@ -249,6 +282,8 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 									MarginLayoutParams params = (MarginLayoutParams) titleLayout.getLayoutParams();
 									params.topMargin = 0;
 									titleLayout.setLayoutParams(params);
+									getPositionForSection(section);
+									SourceDateList.get(getPositionForSection(section));
 									title.setText(SourceDateList.get(getPositionForSection(section)).getSortLetters());
 								}
 								if (nextSecPosition == firstVisibleItem + 1) {
@@ -294,7 +329,15 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 							public void afterTextChanged(Editable s) {
 							}
 						});
-					} else {
+					}else if(customerListModel.getResult().equals("true")&&customerListModel.getData().size()==0){
+						if (!getIntent().getExtras().getString("father").equals("tuihui")) {
+						Tools.showToast(ChooseCustomerActivity.this, "没有客户需要回收");
+						}else{
+							Tools.showToast(ChooseCustomerActivity.this, "没有客户需要退回");
+						}
+					}
+					
+					else {
 						Tools.showToast(ChooseCustomerActivity.this, customerListModel.getDescription());
 					}
 				} else {
@@ -309,7 +352,7 @@ public class ChooseCustomerActivity extends TopContainActivity implements OnClic
 	 * 根据ListView的当前位置获取分类的首字母的Char ascii值
 	 */
 	public int getSectionForPosition(int position) {
-		if (SourceDateList != null && SourceDateList.size() > 0 && position < (SourceDateList.size()-1)) {
+		if (SourceDateList != null && SourceDateList.size() > 0 && position <=(SourceDateList.size()-1)) {
 			try {
 				return SourceDateList.get(position).getSortLetters().charAt(0);
 			} catch (Exception e) {

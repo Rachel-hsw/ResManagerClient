@@ -31,7 +31,7 @@ public class ViewLabelActivity extends TopContainActivity implements OnClickList
 	private String[] fh_imgs;
 	private String[] xh_imgs;
 	private String[] xhd;
-
+    private String url="http://localhost:25849";
 	/*
 	 * (非 Javadoc) <p>Title: onClick</p> <p>Description: </p>
 	 * 
@@ -142,7 +142,8 @@ public class ViewLabelActivity extends TopContainActivity implements OnClickList
 			fh_imgs[i] = orderPicModels.get(i).getOriginal_Path_fh();// 发货图片
 			xh_imgs[i] = orderPicModels.get(i).getOriginal_Path_xh();// 卸货图片
 		}
-		Picasso.with(this).load(orderPicListModel.getThumb_Path_xhd()).error(R.drawable.default_img).placeholder(R.drawable.default_img).into(uploading_img);
+		//Picasso.with(this).load(orderPicListModel.getThumb_Path_xhd()).error(R.drawable.default_img).placeholder(R.drawable.default_img).into(uploading_img);
+		Picasso.with(this).load( orderPicModels.get(0).getThumb_Path_xh()).error(R.drawable.default_img).placeholder(R.drawable.default_img).into(uploading_img);
 		delivery_location_txt.setText(locationName_fh);
 		uploading_location_txt.setText(locationName_xh);
 		delivery_goods_img_grid.setAdapter(new ViewLabelGridAdapter(this, orderPicModels, 1));// 发货

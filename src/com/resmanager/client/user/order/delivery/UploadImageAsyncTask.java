@@ -19,6 +19,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 
 @SuppressLint("SimpleDateFormat")
 public class UploadImageAsyncTask extends AsyncTask<Void, Void, String> {
@@ -34,9 +35,10 @@ public class UploadImageAsyncTask extends AsyncTask<Void, Void, String> {
 	private Activity activity;
 	private String orderIds;
 	private String locationName, locationAddr, lon, lat;
+	private int resoreceType;
 
 	public UploadImageAsyncTask(Context context, Bitmap bitmap, String flagContent, String workId, String goodsId, int isRecyle, String orderIds,
-			String locationName, String locationAddr, String lon, String lat) {
+			String locationName, String locationAddr, String lon, String lat, int resoreceType) {
 		this.activity = (Activity) context;
 		this.bitmap = bitmap;
 		this.flagContent = flagContent;
@@ -49,20 +51,40 @@ public class UploadImageAsyncTask extends AsyncTask<Void, Void, String> {
 		this.locationAddr = locationAddr;
 		this.lon = lon;
 		this.lat = lat;
+		this.resoreceType = resoreceType;// 0：油桶，1：油罐
+		Log.i("image", "dayin"+"333333111");
 	}
 
 	@Override
 	protected String doInBackground(Void... arg0) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String dateNowStr = sdf.format(new Date());
-		WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.IMAGE_UPLOAD);
-		String imageByte = Tools.getImageByte(this.bitmap);
+		WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.IMAGE_UPLOAD);//Delivery_ScanUpload
+		
+		/*goodsId goodsModels index pid resoreceType*/
+		
+		switch (resoreceType) {
+		case 0:
+			// 油桶，新的发货流程
+			ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.IMAGE_UPLOAD_NEW);//Delivery_ScanUpload_1
+			break;
+		case 1:
+			// 油罐，依然使用老系统
+			ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.IMAGE_UPLOAD);
+			if (bitmap != null) {
+				String imageByte = Tools.getImageByte(this.bitmap);
+				ws.addProperty("image", imageByte);
+				ws.addProperty("fileName", flagContent + "-1-" + dateNowStr + ".jpg");
+			}
+			break;
+		default:
+			break;
+		}
+		
 		ws.addProperty("UserKey", ContactsUtils.USER_KEY);
 		ws.addProperty("WorkID", workId);
 		ws.addProperty("LabelCode", flagContent);
 		ws.addProperty("UserID", ContactsUtils.userDetailModel.getUserId());
-		ws.addProperty("image", imageByte);
-		ws.addProperty("fileName", flagContent + "-1-" + dateNowStr + ".jpg");
 		ws.addProperty("GoodsID", goodsId);
 		ws.addProperty("IsRecovery", isRecyle);
 		ws.addProperty("NetworkType", Tools.GetNetworkType(context));
@@ -86,7 +108,7 @@ public class UploadImageAsyncTask extends AsyncTask<Void, Void, String> {
 	@Override
 	protected void onPostExecute(String rv) {
 		super.onPostExecute(rv);
-		if (rv != null) {
+		if (rv != null) {	Log.i("image", "dayin"+"5555555");
 			try {
 				ResultModel resultModel = JSON.parseObject(rv, ResultModel.class);
 				getUploadResourceListener().uploadResult(resultModel, bitmap, flagContent);

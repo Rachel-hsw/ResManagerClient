@@ -20,6 +20,7 @@ import com.resmanager.client.utils.WebServiceUtil;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /**
  * @ClassName: UserLoginAsyncTask
@@ -60,6 +61,7 @@ public class UserLoginAsyncTask extends AsyncTask<Void, Void, String> {
 		super.onPostExecute(rv);
 		if (rv != null) {
 			try {
+				Log.i("hswy", "hswy"+rv.toString());
 				UserModel userModel = JSON.parseObject(rv, UserModel.class);
 				loginListener.loginResult(userModel);
 			} catch (Exception e) {
@@ -84,7 +86,7 @@ public class UserLoginAsyncTask extends AsyncTask<Void, Void, String> {
 	public void setLoginListener(LoginListener loginListener) {
 		this.loginListener = loginListener;
 	}
-
+	//接口
 	public interface LoginListener {
 		public void loginResult(UserModel userModel);
 	}

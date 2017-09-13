@@ -10,11 +10,13 @@ package com.resmanager.client.utils;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.services.core.PoiItem;
+import com.resmanager.client.model.FocusModel;
 import com.resmanager.client.model.UserDetailModel;
 
 public class ContactsUtils {
 
 	public static boolean ISUPLOAD_LOC = false;// 是否上传经纬度
+	public static FocusModel focusModel = null;// 焦距
 	// public static final String BAIDU_API_KEY = "Q4BSvV6capalhEVUjqxgRgh1";//
 	// 百度开放平台key
 	public static final String DB_NAME = "RESMANAGER_DB";
@@ -29,10 +31,16 @@ public class ContactsUtils {
 	public static final int POWER_MY_TRADE = 20000034;// 我的结算
 	public static final int POWER_LOCATION = 20000055;// 位置查看
 	public static final int POWER_DAIXIEHUO = 20000067;// 代卸货
+	public static final int POWER_DAITUIHUI = 20000094;// 代退回
+	public static final int POWER_RUKU = 20000075;// 发货入库
+	public static final int POWER_CHUKU = 20000074;// 发货出库
+	public static final int POWER_TUIHUI = 20000073;// 退回
+	public static final int POWER_ZONGHE = 20000091;// 综合查询
+	
 	// 订单状态
 	public static final int ORDER_ALL = -1;// 所有订单
 	public static final int ORDER_DAICHULI = 0;// 待处理
-	public static final int ORDER_DAIYUNSONG = 1;// 带运送
+	public static final int ORDER_DAIYUNSONG = 1;// 待运送
 	public static final int ORDER_YUNSONGZHONG = 2;// 运送中
 	public static final int ORDER_DAISHENHE = 3;// 待审核
 	public static final int ORDER_DAIJIESUAN = 4;// 待结算
@@ -73,15 +81,21 @@ public class ContactsUtils {
 	public static final int PAGE_SIZE = 15;// 分页条数
 	public static final int SEARCH_ROUND_PAGE_SIZE = 30;// 搜索周边分页条数
 	public static int SPAN = 60 * 1000;// 定位时间间隔，2秒定位1次
-	public static final String BUGLYID = "900015657";
+	public static final String BUGLYID = "92fb62f174";
 	public static AMapLocation baseAMapLocation;// 定位数据
 	public static PoiItem poiItem;// 热点数据
 	// public static final String WS_URL =
 	// "http://121.40.99.27:90/TMSWebService.asmx";// webService地址
-	public static final String WS_URL = "http://nywl112233.6655.la:1050/TMSWebService.asmx";// 正式库
+/*	public static final String WS_URL = "http://nywl112233.6655.la:1050/TMSWebService.asmx";// 正式库
+*/	// webService地址
+/*	public static final String WS_URL = "http://nywl112233.6655.la:91/TMSWebService.asmx";// 测试库
+*/
+	//public static final String WS_URL = "http://192.168.100.98/TMSWebService.asmx";// 本地库
+     public static final String WS_URL = "http://192.168.100.25/TMSWebService.asmx";// 本地库
+       //public static final String WS_URL = "http://gsdy.eicp.net:90/TMSWebService.asmx";// 发布库
+     // public static final String WS_URL = "http://gsdy.eicp.net:91/TMSWebService.asmx";// 测试库
 	// webService地址
-//	public static final String WS_URL = "http://nywl112233.6655.la:91/TMSWebService.asmx";// 测试库
-	// webService地址
+/*	public static final String WS_URL = "http://192.168.100.98/TMSWebService.asmx";*/// 本地库
 	public static final String GET_VERSION_METHOD = "GetVersion";// 获取版本号
 	public static final String USER_LOGIN_METHOD = "ManageLogin";// 用户登录
 	public static final String GET_ORDER_LIST = "GetOrderInfo";// 获取订单列表
@@ -91,6 +105,8 @@ public class ContactsUtils {
 	public static final String LABEL_UNLOCKED = "LabelUnlocked";// 标签解锁
 	public static final String LABEL_LOCKED = "LabelLocked";// 标签锁定
 	public static final String IMAGE_UPLOAD = "Delivery_ScanUpload";// 上传发货图片
+	public static final String LABLE_CODE = "Query_LableCode";//检索方法： 上传标签，检索其在数据库里是否存在
+	public static final String IMAGE_UPLOAD_NEW = "Delivery_ScanUpload_1";// 上传发货图片
 	public static final String CONFIRMDELIVERY = "Delivery_Confirm";// 确认发货
 	public static final String DELPICDELIVERY = "Delivery_DelPic";// 发货图片信息删除
 	public static final String Delivery_DelPicAll = "Delivery_DelPicAll";// 删除所有发货图片
@@ -99,6 +115,8 @@ public class ContactsUtils {
 	public static final String DischargeCargo_DelPic = "DischargeCargo_DelPic";// 删除卸货图片，单张删除
 	public static final String Recovery_ScanUpload = "Recovery_ScanUpload";// 桶回收标签图片扫描上传
 	public static final String Discharge_Confirm = "Discharge_Confirm";// 确认卸货
+	public static final String GetGps = "GetGps";// 触发历史轨迹存储
+	public static final String GetWorkID = "GetWorkID";// 根据OrderId获取WorkID
 	public static final String Recovery_DelPic = "Recovery_DelPic";// 删除回收图片
 	public static final String ViewLabelsRecord = "ViewLabelsRecord";// 查看标签图片信息
 	// public static final String Driver_Settlement_Sum =
@@ -143,5 +161,27 @@ public class ContactsUtils {
 	public static final String Warehouse_List = "Warehouse_List";// 仓库列表
 	public static final String Recovery_Cancel = "Recovery_Cancel";// 清空回收历史
 	public static final String Recovery_Continue = "Recovery_Continue";// 回收续传
+	public static final String FocalLength_List = "FocalLength_List";// 获取焦距
+	public static final String GetGoodsList = "GetGoodsList";// 获取商品列表
+	public static final String GetPicWebService = "GetPicWebService";// 获取图片接口地址
+	public static final String   GetOrder_TrackList="GetOrder_TrackList";//获取订单轨迹列表
+	// 入库
+	public static String IN_WS_URL = "";// 入库webService地址
+//	public static String IN_WS_URL="http://nywl112233.6655.la:92/PicWebService.asmx";
+	public static final String UploadPic = "UploadPic";// 上传图片
+	public static final String Query_IdConfig="Query_IdConfig";//查询总开关
+	public static final String GetRealGps="GetRealGps";//获取实时位置
+	
+	public static final String setll="setll";//查询总开关
+	public static final String DataDisplay="DataDisplay";//查询总开关
+	public static final String GetRecyleNumber="GetRecyleNumber";//根据客户ID获取待回收的大小桶数量
+	public static final String GetTuihuiNumber="GetTuihuiNumber";//根据客户ID获取待退回的大小桶数量
+	public static final String Tuihui_Confirm = "Tuihui_Confirm";// 确认回收
+	public static final String Choose_Warehouse = "Choose_Warehouse";// 获取退回仓库列表
+	public static final String Imei_Upload = "Imei_Upload";// 上传最近一次登陆设备
+	public static final String GetRecyleDetail = "GetRecyleDetail";// 获取回收明细
+	
+	
+	
 
 }

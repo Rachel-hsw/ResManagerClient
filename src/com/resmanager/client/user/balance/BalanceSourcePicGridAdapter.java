@@ -81,6 +81,7 @@ public class BalanceSourcePicGridAdapter extends BaseAdapter {
 		viewHolder.label_code_txt.setText(recylePicModel.getLabels());
 		viewHolder.goods_type_name_txt.setVisibility(View.GONE);
 		viewHolder.goods_package_type_txt.setVisibility(View.GONE);
+		//加载图片
 		Picasso.with(context).load(recylePicModel.getThumb_Path()).placeholder(R.drawable.default_img).error(R.drawable.default_img).into(viewHolder.goods_img);
 		return convertView;
 	}

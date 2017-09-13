@@ -69,14 +69,16 @@ public class SourceGridAdapter extends BaseAdapter {
 		}
 		ScanBimpModel scanBimpModel = scanBimpModels.get(pos);
 		String labelCode = scanBimpModel.getLabelCode();// 加密后的二维码内容，解密后传递给接口进行校验
-		if (scanBimpModel.getThumbPath() != null && !scanBimpModel.getThumbPath().equals("")) {
-			// 有缩略图，代表该图片是从上一次上传获取
-			String path = scanBimpModel.getThumbPath();
-			Picasso.with(context).load(path).placeholder(R.drawable.default_img).error(R.drawable.default_img)
-					.into(viewHolder.goods_img);
-		} else {
-			viewHolder.goods_img.setImageBitmap(scanBimpModel.getBmp());
-		}
+		//viewHolder.goods_img.setVisibility(View.GONE);
+		 if (scanBimpModel.getThumbPath() != null &&
+		 !scanBimpModel.getThumbPath().equals("")) {
+		 // 有缩略图，代表该图片是从上一次上传获取
+		 String path = scanBimpModel.getThumbPath();
+		 Picasso.with(context).load(path).placeholder(R.drawable.default_img).error(R.drawable.default_img)
+		 .into(viewHolder.goods_img);
+		 } else {
+		 viewHolder.goods_img.setImageBitmap(scanBimpModel.getBmp());
+		 }
 		switch (gridType) {
 		case ContactsUtils.GRID_TYPE_DELIVERY_UPLOADING:
 			viewHolder.label_code_txt.setText(Tools.getShowLabelCode(labelCode));

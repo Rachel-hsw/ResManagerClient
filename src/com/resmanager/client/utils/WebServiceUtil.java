@@ -51,7 +51,7 @@ public class WebServiceUtil {
 		// 分配一个对象给这个envelope做为这个通讯的外传信息
 		envelope.setOutputSoapObject(request);
 		// 发送请求给服务器，设置发送的内容
-		HttpTransportSE ht = new HttpTransportSE(httpURL, 5000);
+		HttpTransportSE ht = new HttpTransportSE(httpURL, 40000);
 		// 发出请求
 		ht.call(null, envelope);
 		// 获取这个网络传输中返回的资源数据.

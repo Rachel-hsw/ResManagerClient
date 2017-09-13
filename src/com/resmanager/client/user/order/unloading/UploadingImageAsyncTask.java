@@ -61,7 +61,7 @@ public class UploadingImageAsyncTask extends AsyncTask<Void, Void, String> {
 		ws.addProperty("OrderID", this.orderId);
 		ws.addProperty("Sourceoid", this.sourceoid);
 		ws.addProperty("WorkID", this.workID);
-		ws.addProperty("LabelCode", this.labelCode);
+		ws.addProperty("LabelCode", this.labelCode);//此处传过去的labelcode为NYWL-000798-00模式
 		ws.addProperty("UserID", ContactsUtils.userDetailModel.getUserId());
 		ws.addProperty("NickName", ContactsUtils.userDetailModel.getNickName());
 		ws.addProperty("image", Tools.getImageByte(image));

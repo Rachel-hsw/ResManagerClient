@@ -15,6 +15,25 @@ public class UserModel extends ResultModel implements Serializable {
 	private String NickName;
 	private String UserType;
 	private int UserID;
+	private String DriverTask;
+	public String getDriverTask() {
+		return DriverTask;
+	}
+
+	public void setDriverTask(String driverTask) {
+		DriverTask = driverTask;
+	}
+
+	private boolean isSelect = false;
+
+	public boolean isSelect() {
+		return isSelect;
+	}
+
+	public void setSelect(boolean isSelect) {
+		this.isSelect = isSelect;
+	}
+
 
 	public String getUserKey() {
 		return UserKey;

@@ -34,6 +34,23 @@ public class ScanBimpModel implements Serializable {
 	private String resourceTypeName = "";// 桶类型名
 	private String remark = "";// 备注，在回收的时候需要
 	private String recPID = "";// 图片编号，回收使用
+	private String relative_path="";//相对路径
+
+	public int getIsRecyle() {
+		return isRecyle;
+	}
+
+	public void setIsRecyle(int isRecyle) {
+		this.isRecyle = isRecyle;
+	}
+
+	public String getRelative_path() {
+		return relative_path;
+	}
+
+	public void setRelative_path(String relative_path) {
+		this.relative_path = relative_path;
+	}
 
 	public String getLabelCode() {
 		return labelCode;
@@ -51,13 +68,13 @@ public class ScanBimpModel implements Serializable {
 		this.bmp = bmp;
 	}
 
-	public int isRecyle() {
+/*	public int isRecyle() {
 		return isRecyle;
 	}
 
 	public void setRecyle(int isRecyle) {
 		this.isRecyle = isRecyle;
-	}
+	}*/
 
 	public String getResourceTypeId() {
 		return resourceTypeId;

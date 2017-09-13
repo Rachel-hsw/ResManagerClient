@@ -8,6 +8,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.resmanager.client.R;
+import com.resmanager.client.cameranew.FileUtil;
 import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.FileUtils;
 import com.resmanager.client.utils.Tools;
@@ -19,8 +20,10 @@ import android.app.PendingIntent.CanceledException;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 public class ResManagerApplication extends Application {
@@ -29,6 +32,33 @@ public class ResManagerApplication extends Application {
 	public Vibrator mVibrator;
 	public static int SCREENWIDTH = 0;
 	public static String PACKAGE_NAME = "";
+
+	public static int mScreenWidth = 0;
+	public static int mScreenHeight = 0;
+
+	public static ResManagerApplication CONTEXT;
+
+	private Bitmap mCameraBitmap;
+
+	public Bitmap getCameraBitmap() {
+		return mCameraBitmap;
+	}
+
+	public void setCameraBitmap1(Bitmap mCameraBitmap) {
+		if (mCameraBitmap != null) {
+			recycleCameraBitmap();
+		}
+		this.mCameraBitmap = mCameraBitmap;
+	}
+
+	public void recycleCameraBitmap() {
+		if (mCameraBitmap != null) {
+			if (!mCameraBitmap.isRecycled()) {
+				mCameraBitmap.recycle();
+			}
+			mCameraBitmap = null;
+		}
+	}
 
 	private void initRequestQueue() {
 		mQueue = Volley.newRequestQueue(getApplicationContext());
@@ -72,12 +102,23 @@ public class ResManagerApplication extends Application {
 		if (!new File(FileUtils.SDPATH).exists()) {
 			new File(FileUtils.SDPATH).mkdirs();
 		}
+		if (!new File(FileUtils.CAMERAPATH).exists()) {
+			new File(FileUtils.CAMERAPATH).mkdirs();
+		}
 
 		initImageLoader();
 		initRequestQueue();
 		// 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
 		mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
 		CrashReport.initCrashReport(getApplicationContext(), ContactsUtils.BUGLYID, true);
+
+		DisplayMetrics mDisplayMetrics = getApplicationContext().getResources().getDisplayMetrics();
+		ResManagerApplication.mScreenWidth = mDisplayMetrics.widthPixels;
+		ResManagerApplication.mScreenHeight = mDisplayMetrics.heightPixels;
+
+		CONTEXT = this;
+
+		FileUtil.initFolder();
 	}
 
 }

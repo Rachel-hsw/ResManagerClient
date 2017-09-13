@@ -38,6 +38,7 @@ public class RecoveryImageAsyncTask extends AsyncTask<Void, Void, String> {
 	private String workID, labelCode, RecPID;
 	private Bitmap image;
 	private UploadRecyleResourceListener uploadRecyleResourceListener;
+	private int SWITCH_QR_CODE=1;//送货扫描二维码是否显示的开关,1是不显示
 
 	public RecoveryImageAsyncTask(Context context, String workId, String labelCode, Bitmap image, String RecPID) {
 		this.context = context;
@@ -55,8 +56,13 @@ public class RecoveryImageAsyncTask extends AsyncTask<Void, Void, String> {
 		ws.addProperty("LabelCodes", this.labelCode);
 		ws.addProperty("UserID", ContactsUtils.userDetailModel.getUserId());
 		ws.addProperty("NickName", ContactsUtils.userDetailModel.getNickName());
-		ws.addProperty("image", Tools.getImageByte(image));
-		ws.addProperty("fileName", this.workID + "-" + labelCode + "-3-" + Tools.getNowTime() + ".jpg");
+		if (SWITCH_QR_CODE==0) {
+			ws.addProperty("image", Tools.getImageByte(image));
+			ws.addProperty("fileName", this.workID + "-" + labelCode + "-3-" + Tools.getNowTime() + ".jpg");
+		}else{
+			ws.addProperty("image", "iVBORw0KGgoAAAANSUhEUgAAA8wAAAUICAIAAADx486hAAAAA3NCSVQICAjb");
+			ws.addProperty("fileName", this.workID + "-" + labelCode + "-3-" + Tools.getNowTime() + ".jpg");
+		}	
 		ws.addProperty("NetworkType", Tools.GetNetworkType(context));
 		ws.addProperty("NetworkStrength", "");
 		ws.addProperty("RecPID", RecPID);

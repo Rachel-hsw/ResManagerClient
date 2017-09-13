@@ -23,6 +23,15 @@ public class CustomerModel implements Serializable {
 	private String sortLetters; // 显示数据拼音的首字母
 	private String CustomerID;
 	private String CustomerName;
+	private String WorkID;
+
+	public String getWorkID() {
+		return WorkID;
+	}
+
+	public void setWorkID(String workID) {
+		WorkID = workID;
+	}
 
 	/**
 	 * @return customerID

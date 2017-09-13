@@ -10,54 +10,7 @@
         android:background="@color/white"
         android:orientation="vertical" >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="点击下面图片进行拍摄"
-            android:textColor="@color/middle_gray"
-            android:textSize="@dimen/sixteen_size"
-            android:visibility="visible" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp" >
-
-            <ImageView
-                android:id="@+id/resource_img"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_weight="1"
-                android:minHeight="150dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_img" />
-
-            <RadioGroup
-                android:id="@+id/recyle_isneed_rb"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="10dp" >
-
-                <RadioButton
-                    android:id="@+id/need_rb"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="需要回收"
-                    android:textColor="@color/middle_gray" />
-
-                <RadioButton
-                    android:id="@+id/noneed_rb"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="不需要回收"
-                    android:layout_marginTop="10dp"
-                    android:textColor="@color/middle_gray" />
-            </RadioGroup>
-        </LinearLayout>
+   
 
         <TextView
             android:id="@+id/flagcontent_txt"
@@ -70,6 +23,7 @@
             android:visibility="gone" />
 
         <TextView
+            android:layout_marginTop="20dp"
             android:id="@+id/scan_flag_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,6 +59,56 @@
             android:textColor="@color/middle_gray"
             android:textSize="@dimen/sixteen_size"
             android:visibility="visible" />
+             <TextView
+            android:id="@+id/click_to_take"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="点击下面图片进行拍摄"
+            android:textColor="@color/middle_gray"
+            android:textSize="@dimen/sixteen_size"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/take_img_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="visible" >
+
+            <ImageView
+                android:id="@+id/resource_img"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="150dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_img" />
+
+        <!--     <RadioGroup
+                android:id="@+id/recyle_isneed_rb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="10dp" >
+
+                <RadioButton
+                    android:id="@+id/need_rb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="需要回收"
+                    android:textColor="@color/middle_gray" />
+
+                <RadioButton
+                    android:id="@+id/noneed_rb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="不需要回收"
+                    android:textColor="@color/middle_gray" />
+            </RadioGroup> -->
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"

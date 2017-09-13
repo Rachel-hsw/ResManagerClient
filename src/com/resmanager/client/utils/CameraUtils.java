@@ -1,8 +1,10 @@
 package com.resmanager.client.utils;
 
+import android.annotation.SuppressLint;
 import android.hardware.Camera;
 import android.util.Log;
 
+@SuppressLint("NewApi")
 public class CameraUtils {
 	public static final int INVALID_CAMERA_ID = -1;
 
@@ -51,4 +53,7 @@ public class CameraUtils {
 	public static boolean isCameraIdValid(int cameraId) {
 		return cameraId != INVALID_CAMERA_ID;
 	}
+	
+	
+	
 }

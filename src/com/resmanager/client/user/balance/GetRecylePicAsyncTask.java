@@ -43,8 +43,8 @@ public class GetRecylePicAsyncTask extends AsyncTask<Void, Void, String> {
 	@Override
 	protected String doInBackground(Void... arg0) {
 		WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.Recovery_PicList);
-		ws.addProperty("UserKey", ContactsUtils.USER_KEY);
-		ws.addProperty("WorkID", this.WorkID);
+		ws.addProperty("UserKey", ContactsUtils.USER_KEY);//19af636975f542a99ad70040ca9afb70
+		ws.addProperty("WorkID", this.WorkID);//333926aa-9716-4c13-98bb-63a9883925e9
 		try {
 			String json = ws.start();
 			return json;

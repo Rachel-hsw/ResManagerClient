@@ -26,6 +26,7 @@ import com.resmanager.client.model.DriverModel;
 import com.resmanager.client.order.DriverListAdapter;
 import com.resmanager.client.order.GetDriverListAsyncTask;
 import com.resmanager.client.order.GetDriverListAsyncTask.GetDriverListListener;
+import com.resmanager.client.user.recyle.ChooseCustomerActivity;
 import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.Tools;
 
@@ -73,9 +74,18 @@ public class DriverList extends TopContainActivity implements OnClickListener {
 			// DriverModel driverModel = (DriverModel)
 			// v.getAdapter().getItem(pos);
 			DriverModel driverModel = (DriverModel) v.getAdapter().getItem(pos);
+			if (getIntent().getExtras().getString("father").equals("daixiehuo")) {
 			Intent intent = new Intent(DriverList.this, UserDeliveryOrderList.class);
+			intent.putExtra("father", "tuihui");
 			intent.putExtra("userId", driverModel.getUserId());
 			startActivity(intent);
+			}else if(getIntent().getExtras().getString("father").equals("daituihui")){
+				Intent intent = new Intent(DriverList.this, ChooseCustomerActivity.class);
+				intent.putExtra("userId", driverModel.getUserId());
+				intent.putExtra("userName", driverModel.getNickName());
+				intent.putExtra("father", "diver");
+				startActivity(intent);
+			}
 
 		}
 	};

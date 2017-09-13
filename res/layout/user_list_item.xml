@@ -47,13 +47,19 @@
                 android:textStyle="italic" />
         </LinearLayout>
     </LinearLayout>
-
-    <ImageView
+<ImageView
+        android:id="@+id/is_userselect_img"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:src="@drawable/checked"
+        android:visibility="gone" />
+  <!--   <ImageView
         android:id="@+id/is_select_img"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:padding="10dp"
         android:src="@drawable/go"
-        android:visibility="visible" />
+        android:visibility="visible" /> -->
 
 </LinearLayout>

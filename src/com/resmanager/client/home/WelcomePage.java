@@ -33,11 +33,12 @@ public class WelcomePage extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.welcome_page);
 		FileUtils.deleteDir();
-		if (Tools.isOPen(this)) {
+		//这里把一打开app就请求GPS的功能注释掉了
+		/*if (Tools.isOPen(this)) {*/
 			getVersion();
-		} else {
+		/*} else {
 			isGpsOpenDialog();
-		}
+		}*/
 
 	}
 
@@ -46,6 +47,7 @@ public class WelcomePage extends Activity {
 	 */
 	private void isGpsOpenDialog() {
 		if (dialog == null) {
+			
 			dialog = new CustomDialog(this, R.style.myDialogTheme);
 			dialog.setContentText("GPS未打开，请前往设置打开GPS");
 			dialog.setToDoListener(new CustomDialog.ToDoListener() {
@@ -139,6 +141,7 @@ public class WelcomePage extends Activity {
 							} else {
 								new LoadingAsyncTask().execute();
 							}
+						
 						} else {
 							new LoadingAsyncTask().execute();
 						}
@@ -249,11 +252,11 @@ public class WelcomePage extends Activity {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		if (Tools.isOPen(this)) {
+		/*if (Tools.isOPen(this)) {*/
 			getVersion();
-		} else {
+		/*} else {
 			isGpsOpenDialog();
-		}
+		}*/
 	}
 
 	@Override

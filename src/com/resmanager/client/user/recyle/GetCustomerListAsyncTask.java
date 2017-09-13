@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /**
  * @ClassName: GetCustomerListAsyncTask
@@ -36,20 +37,22 @@ import android.os.AsyncTask;
 @SuppressLint("DefaultLocale")
 public class GetCustomerListAsyncTask extends AsyncTask<Void, Void, CustomerListModel> {
 	private String customerName;
-	private int currentPage;
+	private int currentPage,DriverID;
 	private Dialog loadingDialog;
 	private Context context;
 	private GetCustomerListListener getCustomerListListener;
 	private DBHelper dbHelper;
 	private boolean isGetFromNet;// 是否从网络获取
 	private CharacterParser characterParser;
-
-	public GetCustomerListAsyncTask(Context context, String customerName, int currentPage, boolean isGetFromNet) {
+	private String father;
+	public GetCustomerListAsyncTask(Context context, String customerName, int currentPage, boolean isGetFromNet,String father,int DriverID) {
 		this.context = context;
 		this.isGetFromNet = isGetFromNet;
 		this.currentPage = currentPage;
 		this.customerName = customerName;
 		this.dbHelper = new DBHelper(context);
+		this.father=father;
+		this.DriverID=DriverID;
 		// 实例化汉字转拼音类
 		characterParser = CharacterParser.getInstance();
 	}
@@ -57,7 +60,7 @@ public class GetCustomerListAsyncTask extends AsyncTask<Void, Void, CustomerList
 	@Override
 	protected CustomerListModel doInBackground(Void... arg0) {
 		ArrayList<CustomerModel> customerModels = dbHelper.getCustomerModels();
-		if (customerModels.size() > 0 && isGetFromNet == false) {
+		if (customerModels.size() > 0 && isGetFromNet == false&&father.equals("recyle")) {
 			// 数据库获取
 			CustomerListModel customerListModel = new CustomerListModel();
 			customerListModel.setResult("true");
@@ -67,13 +70,17 @@ public class GetCustomerListAsyncTask extends AsyncTask<Void, Void, CustomerList
 			WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.GetCustomerList);
 			ws.addProperty("UserKey", ContactsUtils.USER_KEY);
 			ws.addProperty("CustomerName", customerName);
-			ws.addProperty("pageSize", 10000000);
+			ws.addProperty("pageSize", 2000);//10000000
 			ws.addProperty("pageIndex", currentPage);
+			ws.addProperty("father", father);
+			ws.addProperty("DriverID", DriverID);
 			try {
 				String jsonStr = ws.start();
 				CustomerListModel customerListModel = JSON.parseObject(jsonStr, CustomerListModel.class);
 				if (customerListModel.getResult().equals("true")) {
+				
 					customerListModel.setData(filledData(customerListModel.getData()));
+					
 				}
 				return customerListModel;
 			} catch (IOException | XmlPullParserException e) {
@@ -133,11 +140,18 @@ public class GetCustomerListAsyncTask extends AsyncTask<Void, Void, CustomerList
 	 */
 	private ArrayList<CustomerModel> filledData(ArrayList<CustomerModel> data) {
 		ArrayList<CustomerModel> mSortList = new ArrayList<CustomerModel>();
+		if (father.equals("recyle")) {
 		dbHelper.deleteTable();// 清空表
+		}
+		Log.i("date","date"+data.size());
 		for (int i = 0; i < data.size(); i++) {
 			CustomerModel customerModel = new CustomerModel();
 			customerModel.setCustomerID(data.get(i).getCustomerID());
+			if (data.get(i).getCustomerName()!=null&&!data.get(i).getCustomerName().equals("")) {
+				
+			
 			customerModel.setCustomerName(data.get(i).getCustomerName());
+			customerModel.setWorkID(data.get(i).getWorkID());;
 			// 汉字转换成拼音
 			String pinyin = characterParser.getSelling(data.get(i).getCustomerName());
 			String sortString = pinyin.substring(0, 1).toUpperCase();
@@ -149,7 +163,8 @@ public class GetCustomerListAsyncTask extends AsyncTask<Void, Void, CustomerList
 				customerModel.setSortLetters("#");
 			}
 			mSortList.add(customerModel);
-			dbHelper.insertToCustomer(customerModel.getCustomerID(), customerModel.getCustomerName(), customerModel.getSortLetters());
+			if (father.equals("recyle")) {	dbHelper.insertToCustomer(customerModel.getCustomerID(), customerModel.getCustomerName(), customerModel.getSortLetters());}
+			}
 		}
 		return mSortList;
 

@@ -322,8 +322,8 @@ public class SearchOrderActivity extends Activity implements OnClickListener {
 			Intent myOrderIntent = new Intent(SearchOrderActivity.this,
 					OrderMainNewActivity.class);
 			myOrderIntent.putExtra("UserType",
-					ContactsUtils.userDetailModel.getUserType());
-			myOrderIntent.putExtra("DayType", dayType);
+					ContactsUtils.userDetailModel.getUserType());//0
+			myOrderIntent.putExtra("DayType", dayType);//-1
 			myOrderIntent.putExtra("Days", "");
 			myOrderIntent.putExtra("Town", belongAreaStr);
 			myOrderIntent.putExtra("Saleoid", orderCodeStr);// 订单号
@@ -333,8 +333,8 @@ public class SearchOrderActivity extends Activity implements OnClickListener {
 			myOrderIntent.putExtra("endDate", endDate);// 结束日期
 			myOrderIntent.putExtra("Packtype", packType);// 包装物类型
 			myOrderIntent
-					.putExtra("salername", saler_code.getText().toString());// 包装物类型
-			setResult(ContactsUtils.SEARCH_ORDER_RESULT, myOrderIntent);
+					.putExtra("salername", saler_code.getText().toString());// 包装物类型//孟庆宇
+			setResult(ContactsUtils.SEARCH_ORDER_RESULT, myOrderIntent);//33
 			finish();
 			break;
 		case R.id.diver_name:

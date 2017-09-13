@@ -1,5 +1,5 @@
 /**   
- * @Title: RecyleActivity.java 
+  * @Title: RecyleActivity.java 
  * @Package com.resmanager.client.user.recyle 
  * @Description: 回收界面 
  * @author ShenYang  
@@ -11,6 +11,8 @@ package com.resmanager.client.user.recyle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -36,8 +38,13 @@ import com.resmanager.client.model.RecyleTempModel;
 import com.resmanager.client.model.ResultModel;
 import com.resmanager.client.model.ScanBimpModel;
 import com.resmanager.client.user.order.UploadCache;
+import com.resmanager.client.user.order.unloading.UploadingActivity;
+import com.resmanager.client.user.order.unloading.UploadingTrailAsyncTask;
+import com.resmanager.client.user.order.unloading.UploadingTrailAsyncTask.UploadingTrailListener;
+import com.resmanager.client.user.recyle.GetRecyleNumberAsyncTask.GetRecyleNumberListener;
 import com.resmanager.client.user.recyle.RecoveryConfirmAsyncTask.RecoveryListener;
 import com.resmanager.client.user.recyle.RecoveryContinueAsyncTask.RecyleContinueListener;
+import com.resmanager.client.user.recyle.RecoveryImageAsyncTask.UploadRecyleResourceListener;
 import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.LocationUtils;
 import com.resmanager.client.utils.LocationUtils.PoiSearchListener;
@@ -62,8 +69,20 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 	private String workId;
 	private ImageView recyle_img;
 	private EditText recyle_remark_txt;
+	
+	private EditText dhs_small_remarktxt;
+	private EditText dhs_small;
+	private EditText dhs_big_remarktxt;
+	private EditText dhs_big;
+	private EditText qianshou_man_edit;
+	private EditText qianshou_man_phone_edit;
+    private  String recyle_number;
+    private String dhs_big_num,dhs_small_num;
+	private String WarehouseName;
+	private EditText ysddh;
 	private Bitmap uploading_id = null;
 	private CustomDialog exitDialog, confirmUploadingDialog, continueRecyleDialog;
+	private int SWITCH_QR_CODE=1;//送货扫描二维码是否显示的开关,1是不显示
 	private Handler mHandler = new Handler() {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
@@ -92,7 +111,29 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 			}
 		};
 	};
+	private TextView choose_warehouse;
+	private String input_dhs_small;
+	private String input_dhs_big;
+	/**
+	 * 弹出对话框让用户最后一次选择
+	 */
+	private void showConfirmDialog1() {
+		if (confirmUploadingDialog == null) {
+			confirmUploadingDialog = new CustomDialog(this, R.style.myDialogTheme);
+			confirmUploadingDialog.setContentText("您确认回收"+(Integer.parseInt(input_dhs_big)+Integer.parseInt(input_dhs_small))+"个桶吗？");
+			confirmUploadingDialog.setToDoListener(new ToDoListener() {
 
+				@Override
+				public void doSomething() {
+					confirmRecyle();		
+					confirmUploadingDialog.dismiss();
+				}
+			});
+		}
+		confirmUploadingDialog.show();
+	}
+	
+	
 	/**
 	 * 弹出对话框让用户最后一次选择
 	 */
@@ -180,10 +221,11 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 	 * @throws
 	 */
 	private void confirmRecyle() {
-		if (this.locationModel != null && this.locationModel.getAddress() != null && !this.locationModel.getAddress().equals("")) {
+	
 			RecoveryConfirmAsyncTask recoveryConfirmAsyncTask = new RecoveryConfirmAsyncTask(RecyleActivity.this, workId, locationModel.getName(),
 					locationModel.getAddress(), String.valueOf(locationModel.getLng()), String.valueOf(locationModel.getLat()), recyle_remark_txt.getText()
-							.toString(), customerModel.getCustomerID(), customerModel.getCustomerName(), uploading_id);
+							.toString(), customerModel.getCustomerID(), customerModel.getCustomerName(), uploading_id,SWITCH_QR_CODE,dhs_small.getText().toString(),
+							dhs_big.getText().toString(),dhs_small_remarktxt.getText().toString(),dhs_big_remarktxt.getText().toString(),qianshou_man_edit.getText().toString() ,qianshou_man_phone_edit.getText().toString(),WarehouseName,ysddh.getText().toString());
 			recoveryConfirmAsyncTask.setRecoveryListener(new RecoveryListener() {
 
 				@Override
@@ -201,9 +243,7 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 				}
 			});
 			recoveryConfirmAsyncTask.execute();
-		} else {
-			Tools.showToast(this, "位置获取失败，请稍后再试");
-		}
+		
 	}
 
 	/*
@@ -233,16 +273,62 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 			}
 			break;
 		case R.id.recyle_btn:
+			uploadRecyleImg();
+			Pattern pattern = Pattern.compile("^[0-9]*$"); 
+			Matcher matcher = pattern.matcher(dhs_small.getText().toString().trim());  
+		
+			Pattern pattern1 = Pattern.compile("^[0-9]*$");  
+			Matcher matcher1 = pattern1.matcher(dhs_big.getText().toString().trim());  
+			
+			Pattern pattern2 = Pattern.compile("^[0-9]*$");  
+			Matcher matcher2 = pattern2.matcher(qianshou_man_phone_edit.getText().toString().trim());  
+			if("".equals(dhs_small.getText().toString().trim())){
+				input_dhs_small="0";
+			}else{
+				input_dhs_small=dhs_small.getText().toString().trim();
+			}
+			if("".equals(dhs_big.getText().toString().trim())){
+				input_dhs_big="0";
+			}else{
+				input_dhs_big=dhs_big.getText().toString().trim();
+			}
 			if (uploading_id == null) {
 				Tools.showToast(this, "请上传回收单照片");
-			} else if (UploadCache.scanBimpModels.size() == 0) {
-				Tools.showToast(this, "请上传桶的照片以及标签");
-			} else {
-				showConfirmDialog();
-			}
+			}else if (this.locationModel.getLat()== null || this.locationModel.getLng() == null ||this.locationModel.getAddress().equals("")) {
+				Tools.showToast(this, "位置获取失败，请稍后再试");
+			}else if (("").equals(WarehouseName)||null==WarehouseName) {
+				Tools.showToast(this, "请选择回收仓库");
+			}else if (("").equals(ysddh.getText().toString().trim())) {
+				Tools.showToast(this, "请填写原始订单号");
+			}else if (("").equals(qianshou_man_edit.getText().toString().trim())||("").equals(qianshou_man_phone_edit.getText().toString().trim())) {
+				Tools.showToast(this, "请完善签收人信息");
+			}else if (("").equals(dhs_small.getText().toString().trim())&&("").equals(dhs_big.getText().toString().trim())) {
+				Tools.showToast(this, "回收数量不能为空");
+			}else if(!("").equals(dhs_small.getText().toString().trim())&&!matcher.matches()){	
+						Tools.showToast(this, "小桶：请填写数字");			
+			}/*else if(!dhs_small.getText().toString().trim().equals("")&&Integer.parseInt(dhs_small.getText().toString().trim())>Integer.parseInt(dhs_small_num)){
+			
+					Tools.showToast(this, "所填小桶回收数不能超出待回收数");
+				
+			}*/else if(!("").equals(dhs_big.getText().toString().trim())&&!matcher1.matches()) {
+						Tools.showToast(this, "大桶：请填写数字");
+			}/*else if(!dhs_big.getText().toString().trim().equals("")&&Integer.parseInt(dhs_big.getText().toString().trim())>Integer.parseInt(dhs_big_num)){
+				
+				Tools.showToast(this, "所填大桶回收数不能超出待回收数");		
+		   }*/else if(!matcher2.matches()){
+					Tools.showToast(this, "签收人电话：请填写数字");  
+				
+		   }else if(!("").equals(dhs_big.getText().toString().trim())&&(Integer.parseInt(input_dhs_big)+Integer.parseInt(input_dhs_small))>(Integer.parseInt(dhs_small_num)+Integer.parseInt(dhs_big_num))){
+			   showConfirmDialog1();
+				//Tools.showToast(this, "所填大桶回收数不能超出待回收数");		
+		   }else{showConfirmDialog();}
 			break;
 		case R.id.recyle_img:
 			Tools.takePhoto(this);
+			break;
+		case R.id.choose_warehouse:
+			Intent intent= new Intent(RecyleActivity.this, ChooseWarehouseActivity.class);
+			startActivityForResult(intent, ContactsUtils.CHOOSE_LABEL_RESULT);
 			break;
 		default:
 			break;
@@ -273,12 +359,45 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 	protected View getCenterView() {
 		return inflater.inflate(R.layout.recyle_layout, null);
 	}
+	/**
+	 * // * // * @Title: uploadImg // * @Description: 上传图片 // * @param @param
+	 * path 设定文件 // * @param type // * 1:二维码上传，2：遗失二维码 // * @return void 返回类型 //
+	 * * @throws //
+	 */
+	public void uploadRecyleImg() {
+
+		String recPId = Tools.getGUID();// 图片ID。用户删除时服务器对应
+		String flagContent="";
+		Bitmap tempbmp=null;
+		RecoveryImageAsyncTask recoveryImageAsyncTask = new RecoveryImageAsyncTask(this, workId, flagContent, tempbmp, recPId);
+		recoveryImageAsyncTask.setUploadRecyleResourceListener(new UploadRecyleResourceListener() {
+
+			@Override
+			public void uploadRecyleResult(ResultModel resultModel, Bitmap bmp, String flagContent, String RecPID) {
+			/*	if (resultModel != null) {
+					if (resultModel.getResult().equals("true")) {
+						Tools.showToast(RecyleActivity.this, "旧桶添加成功");
+					} else {
+						Tools.showToast(RecyleActivity.this, resultModel.getDescription());
+					}
+				} else {
+					Tools.showToast(RecyleActivity.this, "旧桶添加失败，请检查网络");
+				}*/
+			}
+		});
+		recoveryImageAsyncTask.execute();
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		workId = Tools.getGUID();
+/*		uploadRecyleImg();*/
 		customerModel = (CustomerModel) getIntent().getSerializableExtra("customerModel");
+		
+		
+		
+		
 		locationModel = new LocationModel();
 		ImageView leftImg = (ImageView) topView.findViewById(R.id.title_left_img);
 		leftImg.setOnClickListener(this);
@@ -288,7 +407,48 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 		location_str_txt.setOnClickListener(this);
 		customer_name = (TextView) centerView.findViewById(R.id.customer_name);
 		customer_name.setText(customerModel.getCustomerName());
+		ysddh=(EditText) centerView.findViewById(R.id.ysddh);
+		dhs_small = (EditText) centerView.findViewById(R.id.dhs_small);	
+		dhs_big = (EditText) centerView.findViewById(R.id.dhs_big);
+		dhs_small_remarktxt = (EditText) centerView.findViewById(R.id.dhs_small_remarktxt);
+		dhs_big_remarktxt = (EditText) centerView.findViewById(R.id.dhs_big_remarktxt);
+		qianshou_man_edit = (EditText) centerView.findViewById(R.id.qianshou_man_edit);
+		qianshou_man_phone_edit = (EditText) centerView.findViewById(R.id.qianshou_man_phone_edit);
+		choose_warehouse=(TextView)centerView.findViewById(R.id.choose_warehouse);
+		choose_warehouse.setOnClickListener(this);
+		
+	  GetRecyleNumberAsyncTask getRecyleNumberAsyncTask=new GetRecyleNumberAsyncTask(this, customerModel.getCustomerID());
+		getRecyleNumberAsyncTask.setGetRecyleNumberListener(new GetRecyleNumberListener() {
+			
+			@Override
+			public void getRecyleNumberResult(ResultModel rm) {
+				
+				if (rm != null) {
+					if (rm.getResult().equals("true")) {
+						    recyle_number=rm.getDescription();	
+						    if(recyle_number!=null&&!("").equals(recyle_number)){
+							String[] aa =recyle_number.split(",");
+							dhs_big_num=aa[0];
+							dhs_small_num=aa[1];
+							dhs_big.setHint("待回收数"+aa[0]+"个");
+							dhs_small.setHint("待回收数"+aa[1]+"个");
+							}
+					} else {
+						Tools.showToast(RecyleActivity.this, rm.getDescription());
+					}
+				} else {
+					Tools.showToast(RecyleActivity.this, "待回收数获取失败");
+				}	
+			}
+		});
+		getRecyleNumberAsyncTask.execute();
+	
+		
+		
 		add_source_btn = (TextView) centerView.findViewById(R.id.add_source_btn);
+		   if (SWITCH_QR_CODE==1) {
+			   add_source_btn.setVisibility(View.GONE);	
+			}
 		add_source_btn.setOnClickListener(this);
 		centerView.findViewById(R.id.recyle_btn).setOnClickListener(this);
 		recyle_img = (ImageView) centerView.findViewById(R.id.recyle_img);
@@ -322,6 +482,11 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 		recyleContinue();
 	}
 
+	private String[] split(String recyle_number2, char c) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * HANDLER
 	 */
@@ -339,6 +504,7 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 			super.handleMessage(msg);
 		}
 	};
+
 
 	/**
 	 * 
@@ -388,6 +554,12 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 				locationModel.setLng(poiInfo.getLatLonPoint().getLongitude());
 				location_str_txt.setText(poiInfo.getTitle());
 				location_str_txt.setTextColor(getResources().getColor(R.color.orange_color));
+			}
+			break;
+		case ContactsUtils.CHOOSE_LABEL_RESULT:
+			if (data != null) {
+				WarehouseName = data.getExtras().getString("WarehouseName");
+				choose_warehouse.setText(WarehouseName);
 			}
 			break;
 		default:
@@ -447,7 +619,7 @@ public class RecyleActivity extends TopContainActivity implements OnClickListene
 	private void updateNum() {
 		if (UploadCache.scanBimpModels.size() > 0) {
 			add_source_btn.setTextColor(getResources().getColor(R.color.orange_color));
-			add_source_btn.setText("已上传 " + UploadCache.scanBimpModels.size() + " 个油桶");
+			add_source_btn.setText("已上传 " + UploadCache.scanBimpModels.size() + " 张照片");
 		} else {
 			add_source_btn.setTextColor(getResources().getColor(R.color.light_gray));
 			add_source_btn.setText("点击添加货物信息");

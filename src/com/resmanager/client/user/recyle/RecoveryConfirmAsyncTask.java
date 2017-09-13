@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /**
  * @ClassName: RecoveryConfirmAsyncTask
@@ -33,13 +34,16 @@ import android.os.AsyncTask;
  */
 public class RecoveryConfirmAsyncTask extends AsyncTask<Void, Void, String> {
 	private Context context;
-	private String workId, MapLocationName, MapSpecificLocation, Longitude, Latitude, Recovery_Remark, CustomerID, CustomerName;
+	private String workId, MapLocationName, MapSpecificLocation, Longitude, Latitude, Recovery_Remark, CustomerID, CustomerName,small,big,small_remark,big_remark,qianshou_man,qianshou_man_phone;
 	private Bitmap recoveryImg;
 	private RecoveryListener recoveryListener;
 	private Dialog loadingDialog;
+	private int SWITCH_QR_CODE;
+	private String WarehouseName;
+	private String ysddh;
 
 	public RecoveryConfirmAsyncTask(Context context, String workId, String MapLocationName, String MapSpecificLocation, String Longitude, String Latitude,
-			String Recovery_Remark, String CustomerID, String CustomerName, Bitmap recoveryImg) {
+			String Recovery_Remark, String CustomerID, String CustomerName, Bitmap recoveryImg,int SWITCH_QR_CODE,String small,String big,String small_remark,String big_remark,String qianshou_man,String qianshou_man_phone,String WarehouseName,String ysddh) {
 		this.context = context;
 		this.workId = workId;
 		this.MapLocationName = MapLocationName;
@@ -50,6 +54,15 @@ public class RecoveryConfirmAsyncTask extends AsyncTask<Void, Void, String> {
 		this.CustomerID = CustomerID;
 		this.CustomerName = CustomerName;
 		this.recoveryImg = recoveryImg;
+		this.SWITCH_QR_CODE = SWITCH_QR_CODE;
+		this.small=small;
+		this.big=big;
+		this.small_remark=small_remark;
+		this.big_remark=big_remark;
+		this.qianshou_man=qianshou_man;
+		this.qianshou_man_phone=qianshou_man_phone;
+		this.WarehouseName=WarehouseName;
+		this.ysddh=ysddh;
 	}
 
 	@Override
@@ -66,6 +79,16 @@ public class RecoveryConfirmAsyncTask extends AsyncTask<Void, Void, String> {
 		ws.addProperty("CustomerName", CustomerName);
 		ws.addProperty("image", Tools.getImageByte(recoveryImg));
 		ws.addProperty("fileName", CustomerID + "-" + Tools.getNowTime() + ".jpg");
+		ws.addProperty("SWITCH_QR_CODE", SWITCH_QR_CODE);
+		ws.addProperty("small", small);
+		ws.addProperty("big", big);
+		ws.addProperty("small_remark", small_remark);
+		ws.addProperty("big_remark", big_remark);
+		ws.addProperty("qianshou_man", qianshou_man);
+		ws.addProperty("qianshou_man_phone", qianshou_man_phone);
+		ws.addProperty("warehouseName", WarehouseName);
+		ws.addProperty("ysddh", ysddh);
+		
 		try {
 			String jsonStr = ws.start();
 			return jsonStr;

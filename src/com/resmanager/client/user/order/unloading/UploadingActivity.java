@@ -27,6 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.amap.api.services.core.PoiItem;
@@ -34,6 +35,8 @@ import com.amap.api.services.poisearch.PoiResult;
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
 import com.resmanager.client.main.photoalbum.Bimp;
+import com.resmanager.client.map.GetLocationService;
+import com.resmanager.client.model.CustomerModel;
 import com.resmanager.client.model.GoodsPackageQtyListModel;
 import com.resmanager.client.model.GoodsPackageQtyModel;
 import com.resmanager.client.model.LocationModel;
@@ -41,18 +44,26 @@ import com.resmanager.client.model.Order;
 import com.resmanager.client.model.ResultModel;
 import com.resmanager.client.order.OrderDetailActivity;
 import com.resmanager.client.order.OrderListAdapter;
+import com.resmanager.client.system.QueryConfigAsyncTask;
+import com.resmanager.client.system.QueryConfigResult;
+import com.resmanager.client.system.QueryConfigAsyncTask.GetqueryConfigListener;
+import com.resmanager.client.user.order.ChooseLocationActivity;
 import com.resmanager.client.user.order.UploadCache;
+import com.resmanager.client.user.order.delivery.DeliveryActivity;
 import com.resmanager.client.user.order.delivery.GetGoodsCountByOrderIDSAsyncTask;
 import com.resmanager.client.user.order.delivery.GoodsPkgCountListAdapter;
 import com.resmanager.client.user.order.delivery.GetGoodsCountByOrderIDSAsyncTask.GetGoodsCountListener;
 import com.resmanager.client.user.order.unloading.ConfirnUploadingAsyncTask.UploadingListener;
 import com.resmanager.client.user.order.unloading.GetDischargedPicsAsyncTask.GetDischaragePicListener;
+import com.resmanager.client.user.order.unloading.UploadingTrailAsyncTask.UploadingTrailListener;
+import com.resmanager.client.user.recyle.RecyleActivity;
 import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.LocationUtils;
 import com.resmanager.client.utils.Tools;
 import com.resmanager.client.utils.LocationUtils.PoiSearchListener;
 import com.resmanager.client.view.CustomDialog;
 import com.resmanager.client.view.DefineListView;
+import com.resmanager.client.view.CustomDialog.CancelBtnListener;
 import com.resmanager.client.view.CustomDialog.ToDoListener;
 
 /**
@@ -79,7 +90,11 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 	public static Map<String, Integer> skuMap = new HashMap<String, Integer>();
 	public static Map<String, Integer> selectSkuMap = new HashMap<String, Integer>();
 	private int IsInsteadXH = 0;// 是否代卸貨
-
+	//是否使用手机每隔两秒定位上传
+	private int Switch7;
+	private int SWITCH_QR_CODE=1;//送货扫描二维码是否显示的开关,1是不显示
+	
+	private LinearLayout weight;
 	/**
 	 * 
 	 * @Title: getDischargePics
@@ -147,6 +162,9 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 			}
 		};
 	};
+	private LinearLayout add_goods_layout;
+	private EditText discharge_weight;
+	private String shiji_weight;
 
 	/**
 	 * 弹出对话框让用户最后一次选择
@@ -210,22 +228,26 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 			}
 			break;
 		case R.id.location_str_txt:
-			// Intent chooseLocationIntent = new Intent(UploadingActivity.this,
-			// ChooseLocationActivity.class);
-			// chooseLocationIntent.putExtra("current_location",
-			// location_str_txt.getText().toString());
-			// startActivityForResult(chooseLocationIntent,
-			// ContactsUtils.CHOOSE_LOCATION_RESULT);
+			 Intent chooseLocationIntent = new Intent(UploadingActivity.this, ChooseLocationActivity.class);
+			 chooseLocationIntent.putExtra("current_location",
+			 location_str_txt.getText().toString());
+			 startActivityForResult(chooseLocationIntent,
+			 ContactsUtils.CHOOSE_LOCATION_RESULT);
 			break;
 
 		case R.id.uploading_btn:
-			if (UploadingActivity.NUM != UploadCache.scanBimpModels.size()) {
+			//提交审核
+			if (UploadingActivity.NUM != UploadCache.scanBimpModels.size()&&SWITCH_QR_CODE==2) {
 				Tools.showToast(this, "卸货数量与订单货物数量不符");
+			}else  if (this.locationModel.getLat()== null || this.locationModel.getLng() == null ||this.locationModel.getAddress().equals("")) {
+				Tools.showToast(this, "位置获取失败，请稍后再试");
 			} else if (uploading_id == null) {
 				Tools.showToast(this, "请上传卸货单照片");
-			} else if (qianshou_man_edit.getText().toString().trim().equals("")) {
+			}else if ("".equals(discharge_weight.getText().toString().trim())&&SWITCH_QR_CODE==2) {
+				Tools.showToast(this, "实际重量不能为空");
+			}else if (("").equals(qianshou_man_edit.getText().toString().trim())) {
 				Tools.showToast(this, "请输入签收人");
-			} else if (qianshou_man_phone_edit.getText().toString().trim().equals("")) {
+			} else if (("").equals(qianshou_man_phone_edit.getText().toString().trim())) {
 				Tools.showToast(this, "请输入签收人联系方式");
 			} else {
 				showConfirmDialog();
@@ -260,6 +282,17 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 							GoodsPackageQtyModel goodsPackageQtyModel = data.get(i);
 							skuMap.put(goodsPackageQtyModel.getGoodsnameID(), goodsPackageQtyModel.getQuantity());
 							selectSkuMap.put(goodsPackageQtyModel.getGoodsnameID(), 0);
+							if (goodsPackageQtyModel.getPackagetype().equals("油罐")) {			
+								 SWITCH_QR_CODE=2;	 
+							}
+
+							if (SWITCH_QR_CODE==1) {
+								add_goods_layout.setVisibility(View.GONE);
+								weight.setVisibility(View.GONE);
+							}else if(SWITCH_QR_CODE==2){
+								add_goods_layout.setVisibility(View.VISIBLE);
+								weight.setVisibility(View.VISIBLE);
+							}
 						}
 						GoodsPkgCountListAdapter goodsPkgCountListAdapter = new GoodsPkgCountListAdapter(UploadingActivity.this, data);
 						goods_package_count_list.setAdapter(goodsPkgCountListAdapter);
@@ -283,11 +316,43 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 	 * @throws
 	 */
 	public void confirnUploading() {
-		if (this.locationModel != null && this.locationModel.getAddress() != null && !this.locationModel.getAddress().equals("")) {
+	
+
+		UploadingTrailAsyncTask uploadingTrailAsyncTask=new UploadingTrailAsyncTask(this,orders.get(0).getWorkID(),orders.get(0).getOrderID(),String.valueOf(this.locationModel.getLng()),
+				String.valueOf(this.locationModel.getLat()));
+		uploadingTrailAsyncTask.setUploadingTrailListener(new UploadingTrailListener() {
+			
+			@Override
+			public void uploadingTrailResult(ResultModel rm) {
+				// TODO Auto-generated method stub
+				if (rm != null) {
+					if (rm.getResult().equals("true")) {
+						Tools.showToast(UploadingActivity.this, rm.getDescription());					
+					} else {
+						Tools.showToast(UploadingActivity.this, rm.getDescription());
+					}
+				} else {
+					Tools.showToast(UploadingActivity.this, "gps获取失败");
+				}	
+			}
+		});
+	uploadingTrailAsyncTask.execute();
+
+	if (SWITCH_QR_CODE==1) {
+		shiji_weight="";
+		
+	}else if(SWITCH_QR_CODE==2){
+		if (!"".equals(discharge_weight.getText().toString().trim())) {
+			shiji_weight = discharge_weight.getText().toString().trim();
+			}
+			
+	}
+	
+	/*	if (this.locationModel != null && this.locationModel.getAddress() != null && !this.locationModel.getAddress().equals("")) {*/
 			ConfirnUploadingAsyncTask confirnDeliveryAsyncTask = new ConfirnUploadingAsyncTask(this, orders.get(0).getWorkID(), orders.get(0).getOrderID(),
 					orders.get(0).getSaleoid(), this.locationModel.getName(), this.locationModel.getAddress(), String.valueOf(this.locationModel.getLng()),
 					String.valueOf(this.locationModel.getLat()), uploading_remark_txt.getText().toString(), qianshou_man_edit.getText().toString().trim(),
-					qianshou_man_phone_edit.getText().toString().trim(), uploading_id, IsInsteadXH);
+					qianshou_man_phone_edit.getText().toString().trim(), uploading_id, IsInsteadXH,shiji_weight);
 			confirnDeliveryAsyncTask.setUploadingListener(new UploadingListener() {
 
 				@Override
@@ -295,8 +360,14 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 					if (rm != null) {
 						if (rm.getResult().equals("true")) {
 							ContactsUtils.ISUPLOAD_LOC = false;// 禁止上传位置
+							if(Switch7==1){
+							if (ContactsUtils.USER_KEY != null && !ContactsUtils.USER_KEY.equals("")) {
+								Intent service = new Intent(UploadingActivity.this, GetLocationService.class);
+								stopService(service);
+							}}
 							Tools.showToast(UploadingActivity.this, "卸货成功，订单已提交");
-							finish();
+							//finish();
+							goToRecyle();
 						} else {
 							Tools.showToast(UploadingActivity.this, rm.getDescription());
 						}
@@ -306,11 +377,42 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 				}
 			});
 			confirnDeliveryAsyncTask.execute();
-		} else {
+		/*} else {
 			Tools.showToast(this, "位置获取失败，请稍后再试");
-		}
+		}*/
 	}
+	/**
+	 * 弹出对话框让用户选择
+	 */
+	private void goToRecyle() {
+		if (exitDialog == null) {
+			exitDialog = new CustomDialog(this, R.style.myDialogTheme);
+			exitDialog.setContentText("是否进入回收界面？");
+			exitDialog.setToDoListener(new ToDoListener() {
 
+				@Override
+				public void doSomething() {
+					// deleteAllPic();
+				final CustomerModel customerModel = new CustomerModel();
+				customerModel.setCustomerID(orders.get(0).getOrderCustomerID());
+				customerModel.setCustomerName(orders.get(0).getOrdercustomer());
+				Intent recyleIntent=new Intent(UploadingActivity.this,RecyleActivity.class);
+			    recyleIntent.putExtra("customerModel", customerModel);
+				startActivity(recyleIntent);
+				finish();	
+				}
+			});
+			exitDialog.setCancelBtnListener(new CancelBtnListener() {
+				
+				@Override
+				public void cancel() {
+					// TODO Auto-generated method stub
+					finish();	
+				}
+			});
+		}
+		exitDialog.show();
+	}
 	/*
 	 * (非 Javadoc) <p>Title: getTopView</p> <p>Description: </p>
 	 * 
@@ -362,21 +464,26 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 		orders = (ArrayList<Order>) getIntent().getExtras().getSerializable("orders");
 		IsInsteadXH = getIntent().getIntExtra("IsInsteadXH", 0);
 		getDischargePics();
+		getGoodsCount(orders.get(0).getOrderID());
 		UploadingActivity.NUM = orders.get(0).getQuantity();// 数量
 		// deleteAllUploadingPhoto();// 防止之前上传过的冗余数据，先删除
 		View contentView = inflater.inflate(R.layout.uploading_layout, null);
 		goods_package_count_list = (DefineListView) contentView.findViewById(R.id.goods_package_count_list);
 		uploading_btn = (Button) contentView.findViewById(R.id.uploading_btn);
 		uploading_btn.setOnClickListener(this);
+		source_num_txt = (TextView) contentView.findViewById(R.id.source_num_txt);
 		add_source_btn = (Button) contentView.findViewById(R.id.add_source_btn);
+		add_goods_layout= (LinearLayout) contentView.findViewById(R.id.add_goods_layout);
 		add_source_btn.setOnClickListener(this);
+		weight=(LinearLayout) contentView.findViewById(R.id.weight);
+		discharge_weight=(EditText) contentView.findViewById(R.id.discharge_weight);   
 		resource_recyle_txt = (TextView) contentView.findViewById(R.id.resource_recyle_txt);
 		resource_recyle_txt.setOnClickListener(this);
 		order_list = (DefineListView) contentView.findViewById(R.id.order_list);
 		uploading_remark_txt = (EditText) contentView.findViewById(R.id.uploading_remark_txt);
 		qianshou_man_edit = (EditText) contentView.findViewById(R.id.qianshou_man_edit);
 		qianshou_man_phone_edit = (EditText) contentView.findViewById(R.id.qianshou_man_phone_edit);
-		source_num_txt = (TextView) contentView.findViewById(R.id.source_num_txt);
+		
 		OrderListAdapter orderListAdapter = new OrderListAdapter(this, orders, false);
 		order_list.setAdapter(orderListAdapter);
 		order_list.setOnItemClickListener(new OnItemClickListener() {
@@ -411,7 +518,7 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 		source_num_txt.setText("(数量:" + orders.get(0).getQuantity() + ")");
 		add_upload_id_img = (ImageView) contentView.findViewById(R.id.add_upload_id_img);
 		add_upload_id_img.setOnClickListener(this);
-		getGoodsCount(orders.get(0).getOrderID());
+	
 		return contentView;
 	}
 
@@ -452,6 +559,33 @@ public class UploadingActivity extends TopContainActivity implements OnClickList
 		tongji();
 
 	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+	// TODO Auto-generated method stub
+	super.onCreate(savedInstanceState);
+	//是否使用手机定位
+	QueryConfigAsyncTask queryConfigAsyncTask7 = new QueryConfigAsyncTask(this, 7);
+	queryConfigAsyncTask7.setqueryConfigListener(new GetqueryConfigListener() {
+		@Override
+		public void getqueryConfigResult(QueryConfigResult queryConfigResult) {
+			// TODO Auto-generated method stub
+			if (queryConfigResult != null) {
+				if (queryConfigResult.getResult().equals("true")) {
+//{"data":[{"id":"3","name":"是否验证流水线标签","state":"1"}],"result":"true","description":"读取成功","UserKey":null}
+					Switch7=queryConfigResult.getData().get(0).getState();
+					}else {
+					Tools.showToast(UploadingActivity.this,queryConfigResult.getDescription());
+				}
+			} else {
+				Tools.showToast(UploadingActivity.this, "样式获取失败，请检查网络");
+			}
+		}
+		
+
+	});
+	queryConfigAsyncTask7.execute();
+
+}
 
 	/**
 	 * 

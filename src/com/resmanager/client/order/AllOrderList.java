@@ -119,6 +119,7 @@ public class AllOrderList extends TopContainActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 	}
 
 	@Override

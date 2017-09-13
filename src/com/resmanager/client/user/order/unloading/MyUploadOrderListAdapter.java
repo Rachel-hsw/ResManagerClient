@@ -167,6 +167,7 @@ public class MyUploadOrderListAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 		Order order = orders.get(pos);
+		
 		viewHolder.order_customer_txt.setText(order.getOrdercustomer());// 客户
 		viewHolder.address_txt.setText(order.getShippingaddress());// 送货地址
 		viewHolder.request_date.setVisibility(View.GONE);

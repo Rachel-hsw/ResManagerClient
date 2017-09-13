@@ -11,8 +11,9 @@ import android.util.Log;
 
 public class FileUtils {
 
-	public static String SDPATH = Environment.getExternalStorageDirectory()
-			+ "/RES_MANAGER/";
+	public static String SDPATH = Environment.getExternalStorageDirectory() + "/RES_MANAGER/";
+
+	public static String CAMERAPATH = Environment.getExternalStorageDirectory() + "/NYWL_CAMERA/";
 
 	public static String saveBitmap(Bitmap bm, String picName) {
 		Log.e("", "保存图片");
@@ -20,12 +21,12 @@ public class FileUtils {
 			if (!isFileExist("")) {
 				createSDDir("");
 			}
-			File f = new File(SDPATH, picName + ".JPEG");
+			File f = new File(CAMERAPATH, picName);
 			if (f.exists()) {
 				f.delete();
 			}
 			FileOutputStream out = new FileOutputStream(f);
-			bm.compress(Bitmap.CompressFormat.JPEG, 90, out);
+			bm.compress(Bitmap.CompressFormat.JPEG, 100, out);
 			out.flush();
 			out.close();
 			return f.getPath();
@@ -35,13 +36,12 @@ public class FileUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return "";
+		return CAMERAPATH + picName;
 	}
 
 	public static File createSDDir(String dirName) throws IOException {
 		File dir = new File(SDPATH + dirName);
-		if (Environment.getExternalStorageState().equals(
-				Environment.MEDIA_MOUNTED)) {
+		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			boolean isOK = dir.mkdirs();
 			System.out.println("createSDDir:" + isOK);
 		}
@@ -73,7 +73,7 @@ public class FileUtils {
 			else if (file.isDirectory())
 				deleteDir(); // 递规的方式删除文件夹
 		}
-//		dir.delete();// 删除目录本身
+		// dir.delete();// 删除目录本身
 	}
 
 	public static boolean fileIsExists(String path) {

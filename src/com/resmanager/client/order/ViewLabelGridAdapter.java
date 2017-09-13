@@ -19,7 +19,7 @@ public class ViewLabelGridAdapter extends BaseAdapter {
 	private ArrayList<OrderPicModel> orderPicModels;
 	private Context context;
 	private int type;// 1：发货，2：卸货
-
+    private String url="http://localhost:25849";
 	public ViewLabelGridAdapter(Context context, ArrayList<OrderPicModel> orderPicModels, int type) {
 		this.context = context;
 		this.orderPicModels = orderPicModels;
@@ -64,7 +64,8 @@ public class ViewLabelGridAdapter extends BaseAdapter {
 		OrderPicModel orderPicModel = orderPicModels.get(position);
 		holder.goods_type_name_txt.setText(orderPicModel.getGoodsName());
 		String lable = orderPicModel.getLabelCode();
-		holder.label_code_txt.setText(lable.substring(5, lable.lastIndexOf("-")));
+		//holder.label_code_txt.setText(lable.substring(5, lable.lastIndexOf("-")));
+		//holder.label_code_txt.setText("20170625");
 		holder.goods_package_type_txt.setText(orderPicModel.getPackagetype());
 		switch (type) {
 		case 1:

@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
 import com.resmanager.client.map.GetOrderInfoByWorkIdAsyncTask;
+import com.resmanager.client.map.UserLineLocationMapView;
+import com.resmanager.client.map.UserLocationMapView;
 import com.resmanager.client.map.GetOrderInfoByWorkIdAsyncTask.GetOnDispatchOrderListener;
 import com.resmanager.client.model.Order;
 import com.resmanager.client.model.OrderListModel;
@@ -43,6 +45,11 @@ public class DispatchingOrderList extends TopContainActivity implements OnClickL
 		case R.id.title_left_img:
 			this.finish();
 			break;
+		case R.id.title_right_img:
+			Intent trajectoryIntent = new Intent(DispatchingOrderList.this,UserLineLocationMapView.class);
+			trajectoryIntent.putExtra("WordId",WordId);
+			startActivity(trajectoryIntent);
+			break;
 
 		default:
 			break;
@@ -56,6 +63,10 @@ public class DispatchingOrderList extends TopContainActivity implements OnClickL
 		leftImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
 		titleContent.setText("运送中订单");
+		ImageView rightImg = (ImageView) topView.findViewById(R.id.title_right_img);
+		rightImg.setVisibility(View.GONE);
+		rightImg.setImageResource(R.drawable.trajectory);
+		rightImg.setOnClickListener(this);
 
 		return topView;
 	}

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMap.InfoWindowAdapter;
@@ -31,9 +32,12 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
 import com.resmanager.client.map.GetDriverPositionListAsyncTask.GetUserLocationListListener;
+import com.resmanager.client.map.GetUserLocationAsyncTask.GetUserLocationListener;
+import com.resmanager.client.model.RecyleLabelModel;
 import com.resmanager.client.model.UserLocationListModel;
 import com.resmanager.client.model.UserLocationModel;
 import com.resmanager.client.user.order.DispatchingOrderList;
+import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.Tools;
 
 @SuppressLint("InflateParams")
@@ -46,6 +50,7 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 	private Map<String, String> workIdMaps;
 	private Map<String, UserLocationModel> userLocationModelMap;
 	private boolean isFirst = true;
+	private ArrayList<UserLocationModel> userLocationModels;
 
 	// private UserModel userModel;
 
@@ -60,8 +65,12 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.title_left_img:
+			Intent intent = new Intent(UserLocationMapView.this,ChooseLocationDriverActivity.class);
+			intent.putExtra("userLocationModels",userLocationModels);
+			setResult(ContactsUtils.CHOOSE_DRIVER_RESULT, intent);
 			this.finish();
 			break;
+		
 		default:
 			break;
 		}
@@ -81,6 +90,7 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 		leftImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
 		titleContent.setText("所在位置");
+		
 		return topView;
 	}
 
@@ -88,7 +98,10 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		workIdMaps = new HashMap<String, String>();
-		userLocationModelMap = new HashMap<String, UserLocationModel>();
+		userLocationModels  = 
+				(ArrayList<UserLocationModel>) getIntent().getExtras().getSerializable("userLocationModels");
+	
+	     userLocationModelMap = new HashMap<String, UserLocationModel>();
 		mapView = (MapView) centerView.findViewById(R.id.amap_view);
 		mapView.onCreate(savedInstanceState);// 必须要写
 		amap = mapView.getMap();
@@ -103,7 +116,7 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 		// lat = "31.863125";
 		// lng = "120.482941";
 		// 在onCreat方法中给aMap对象赋值
-
+		getUserLocList();
 		amap.setOnMarkerClickListener(new OnMarkerClickListener() {
 
 			@Override
@@ -127,7 +140,7 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 		});
 		amap.setInfoWindowAdapter(this);// 设置自定义InfoWindow样式
 		// getUserLocList();
-		timer.schedule(task, 0, 1 * 1000); // 1s后执行task,经过1s再次执行
+	//	timer.schedule(task, 0, 1 * 1000); // 1s后执行task,经过1s再次执行
 	}
 
 	@Override
@@ -188,7 +201,10 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 				if (driverId != null) {
 					String workId = workIdMaps.get(driverId);
 					if (workId != null && !workId.equals("")) {
+						//Intent intent = new Intent(UserLocationMapView.this, UserLineLocationMapView.class);
+						
 						Intent intent = new Intent(UserLocationMapView.this, DispatchingOrderList.class);
+						
 						intent.putExtra("WorkId", workId);
 						startActivity(intent);
 					} else {
@@ -248,19 +264,11 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 	 * @throws
 	 */
 	private void getUserLocList() {
-		GetDriverPositionListAsyncTask getDriverPositionListAsyncTask = new GetDriverPositionListAsyncTask(this, isFirst);
-		getDriverPositionListAsyncTask.setGetUserLocationListListener(new GetUserLocationListListener() {
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void onSuccess(UserLocationListModel userLocationListModel) {
-				amap.clear();
-				if (userLocationListModel.getData() != null) {
-					ArrayList<UserLocationModel> userLocationModels = userLocationListModel.getData();
+		
 					for (int i = 0; i < userLocationModels.size(); i++) {
 						UserLocationModel userLocationModel = userLocationModels.get(i);
-						if (userLocationModel.getLatitude() != null && !userLocationModel.getLatitude().equals("") && userLocationModel.getLongitude() != null
-								&& !userLocationModel.getLongitude().equals("")) {
+						if (userLocationModel.getLatitude() != null && !userLocationModel.getLatitude().equals("")&& !userLocationModel.getLatitude().equals("0.0")
+								&& userLocationModel.getLongitude() != null&& !userLocationModel.getLongitude().equals("")&&!userLocationModel.getLongitude().equals("0.0")) {
 							MarkerOptions mko = new MarkerOptions();
 
 							if (lat == null) {
@@ -304,24 +312,21 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 								userLocationModelMap.put(userLocationModel.getUserName(), userLocationModel);
 							}
 							amap.addMarker(mko);
+							if (isFirst) {
+								LatLng marker1 = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+								amap.moveCamera(CameraUpdateFactory.changeLatLng(marker1));
+							}
+							isFirst = false;
 
+						}else{
+							Toast.makeText(UserLocationMapView.this,userLocationModel.getDriverName()+"无坐标信息", 2000).show();
 						}
+					
 
 					}
-					if (isFirst) {
-						LatLng marker1 = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
-						amap.moveCamera(CameraUpdateFactory.changeLatLng(marker1));
-					}
-					isFirst = false;
-				}
-			}
-
-			@Override
-			public void onFaile() {
-				Tools.showToast(UserLocationMapView.this, "位置信息获取失败，请检查网络");
-			}
-		});
-		getDriverPositionListAsyncTask.execute();
+					
+				
+			
 	}
 
 	/**
@@ -341,6 +346,31 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 		}
 		return null;
 	}
+//	public void getnewUserLocList(){
+//		for(int i=0;i<userLocationModels.size();i++){
+//		GetUserLocationAsyncTask getUserLocationAsyncTask = new GetUserLocationAsyncTask(this, userLocationModels .get(i).getUserName());
+//		getUserLocationAsyncTask.setGetUserLocationListener(new GetUserLocationListener() {
+//
+//			@Override
+//			public void getUserLocationResult(Map<String, String> locationMap) {
+//				if (locationMap != null) {
+//					if (locationMap.get("result").equals("true")) {
+//						String Longitude = locationMap.get("Longitude");
+//						String Latitude = locationMap.get("Latitude");
+//					
+//					} else {
+//						Tools.showToast(UserLocationMapView.this, locationMap.get("description"));
+//					}
+//				} else {
+//					Tools.showToast(UserLocationMapView.this, "位置获取失败");
+//				}
+//			}
+//		});
+//		getUserLocationAsyncTask.execute();
+//	}
+//	}
+//
+//	}
 
 	// view 转bitmap
 	private Bitmap convertViewToBitmap(View view) {
@@ -351,21 +381,21 @@ public class UserLocationMapView extends TopContainActivity implements OnClickLi
 		return bitmap;
 	}
 
-	Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			getUserLocList();
-			super.handleMessage(msg);
-		};
-	};
-	Timer timer = new Timer();
-	TimerTask task = new TimerTask() {
-
-		@Override
-		public void run() {
-			// 需要做的事:发送消息
-			Message message = new Message();
-			message.what = 1;
-			handler.sendMessage(message);
-		}
-	};
+//	Handler handler = new Handler() {
+//		public void handleMessage(Message msg) {
+//			//getnewUserLocList();
+//			super.handleMessage(msg);
+//		};
+//	};
+//	Timer timer = new Timer();
+//	TimerTask task = new TimerTask() {
+//
+//		@Override
+//		public void run() {
+//			// 需要做的事:发送消息
+//			Message message = new Message();
+//			message.what = 1;
+//			handler.sendMessage(message);
+//		}
+//	};
 }

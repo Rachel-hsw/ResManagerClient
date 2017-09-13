@@ -3,6 +3,8 @@
  */
 package com.resmanager.client.utils;
 
+import android.util.Log;
+
 public class DESUtils {
 
 	/**
@@ -23,12 +25,18 @@ public class DESUtils {
 	 */
 	public static String decrypt(String ssoToken) {
 		try {
+			 /* ssoToken:105&116&114&103&72&75&75&80&80&81&76&72&75&75& */
 			String name = new String();
+			//根据自定义字符为分界符进行拆分,这里的&便是分隔符
+			Log.i("-----","hsw+ssoToken:"+ssoToken);
 			java.util.StringTokenizer st = new java.util.StringTokenizer(ssoToken, "&");
 			while (st.hasMoreElements()) {
 				int asc = Integer.parseInt((String) st.nextElement()) - 27;
+				//ASCII转码
 				name = name + (char) asc;
+				Log.i("-----1","hsw+name:"+name);
 			}
+			Log.i("-----2","hsw+name:"+name);
 			return name;
 		} catch (Exception e) {
 			e.printStackTrace();

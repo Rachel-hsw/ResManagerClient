@@ -15,6 +15,15 @@ public class UserLocationModel implements Serializable {
 	private String CID;//车牌
 	private String ddsl;//订单数量
 	private String istank;//是否是油桶，1是0不是
+	private boolean isSelect = false;
+	public boolean isSelect() {
+		return isSelect;
+	}
+
+	public void setSelect(boolean isSelect) {
+		this.isSelect = isSelect;
+	}
+
 
 	/**
 	 * @return workID

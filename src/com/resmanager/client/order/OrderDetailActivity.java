@@ -3,10 +3,9 @@
  */
 package com.resmanager.client.order;
 
-import java.util.ArrayList;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
+import com.resmanager.client.map.UserLineLocationMapView;
 import com.resmanager.client.model.Order;
 import com.resmanager.client.model.OrderDetailInfo;
 import com.resmanager.client.model.OrderPicListModel;
@@ -26,12 +26,19 @@ import com.resmanager.client.model.SourceModel;
 import com.resmanager.client.order.GetOrderDetailAsyncTask.GetOrderDetailListener;
 import com.resmanager.client.order.GetOrderPicListByOrderIdAsyncTask.GetOrderPicListListener;
 import com.resmanager.client.order.OrderDeliveryCancelAsyncTask.OrderDeliveryCancelListener;
+import com.resmanager.client.order.OrderTrailAsyncTask.OrderTrailListener;
 import com.resmanager.client.order.OrderUploadingCancelAsyncTask.OrdeDischargeCancelListener;
+import com.resmanager.client.user.order.DispatchingOrderList;
+import com.resmanager.client.user.order.unloading.UploadingActivity;
+import com.resmanager.client.user.order.unloading.UploadingTrailAsyncTask;
+import com.resmanager.client.user.order.unloading.UploadingTrailAsyncTask.UploadingTrailListener;
 import com.resmanager.client.utils.ContactsUtils;
 import com.resmanager.client.utils.Tools;
 import com.resmanager.client.view.CustomDialog;
-import com.resmanager.client.view.DefineListView;
 import com.resmanager.client.view.CustomDialog.ToDoListener;
+import com.resmanager.client.view.DefineListView;
+
+import java.util.ArrayList;
 
 /**
  * @author ShenYang
@@ -49,7 +56,7 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	private Button reset_btn;
 	private int btn_flag = 0;// 0:取消发货，1：取消卸货
 	private CustomDialog customDialog;
-
+	private String WordId = "";
 	/*
 	 * (非 Javadoc) <p>Title: onClick</p> <p>Description: </p>
 	 * 
@@ -87,6 +94,12 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 
 		case R.id.reset_btn:
 			showNoticeDialog();
+			break;
+		case R.id.title_right_img:
+			Intent trajectoryIntent = new Intent(OrderDetailActivity.this,UserLineLocationMapView.class);
+			trajectoryIntent.putExtra("WordId",WordId);
+			trajectoryIntent.putExtra("OrderID",orderId);
+			startActivity(trajectoryIntent);
 			break;
 
 		default:
@@ -127,12 +140,9 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	// }
 
 	/**
-	 * 
-	 * @Title: getOrderPicsByOrderId
-	 * @Description: 根据订单ID获取订单图片
-	 * @param 设定文件
-	 * @return void 返回类型
-	 * @throws
+	 * 根据订单ID获取订单图片
+	 * Author ShenYang
+	 * create at 2016/10/25 14:33
 	 */
 	private void getOrderPicsByOrderId() {
 		GetOrderPicListByOrderIdAsyncTask getOrderPicListByOrderIdAsyncTask = new GetOrderPicListByOrderIdAsyncTask(this, orderId);
@@ -172,11 +182,33 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	@Override
 	protected View getTopView() {
 		orderId = getIntent().getExtras().getString("orderId");
+		OrderTrailAsyncTask orderTrailAsyncTask=new OrderTrailAsyncTask(this,orderId);
+		orderTrailAsyncTask.setOrderTrailListener(new OrderTrailListener() {
+			
+			@Override
+			public void orderTrailResult(ResultModel rm) {
+				// TODO Auto-generated method stub
+				if (rm != null) {
+					if (rm.getResult().equals("true")) {
+						WordId=rm.getDescription();			
+					} else {
+						Tools.showToast(OrderDetailActivity.this, rm.getDescription());
+					}
+				} else {
+					Tools.showToast(OrderDetailActivity.this, "连接不到数据库");
+				}		
+			}
+		});
+		orderTrailAsyncTask.execute();
 		View topView = inflater.inflate(R.layout.custom_title_bar, null);
 		ImageView leftImg = (ImageView) topView.findViewById(R.id.title_left_img);
 		leftImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
 		titleContent.setText("订单明细");
+		ImageView rightImg = (ImageView) topView.findViewById(R.id.title_right_img);
+		rightImg.setVisibility(View.VISIBLE);
+		rightImg.setImageResource(R.drawable.trajectory);
+		rightImg.setOnClickListener(this);
 		return topView;
 	}
 
@@ -195,12 +227,9 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	}
 
 	/**
-	 * 
-	 * @Title: initView
-	 * @Description: 初始化布局中的View
-	 * @param 设定文件
-	 * @return void 返回类型
-	 * @throws
+	 *  初始化布局中的View
+	 * Author ShenYang
+	 * create at 2016/10/25 14:33
 	 */
 	private void initLayoutView(View v) {
 		reset_btn = (Button) v.findViewById(R.id.reset_btn);
@@ -239,12 +268,9 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	}
 
 	/**
-	 * 
-	 * @Title: getOrderDetail
-	 * @Description: 获取订单明细
-	 * @param 设定文件
-	 * @return void 返回类型
-	 * @throws
+	 * 获取订单明细
+	 * Author ShenYang
+	 * create at 2016/10/25 14:33
 	 */
 	private void getOrderDetail() {
 		GetOrderDetailAsyncTask getOrderDetailAsyncTask = new GetOrderDetailAsyncTask(this, orderId, ContactsUtils.USER_KEY);
@@ -271,12 +297,9 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	}
 
 	/**
-	 * 
-	 * @Title: setOrderDetail
-	 * @Description: 设置订单详细
-	 * @param @param orderDetailInfo 设定文件
-	 * @return void 返回类型
-	 * @throws
+	 * 设置订单详细
+	 * Author ShenYang
+	 * create at 2016/10/25 14:33
 	 */
 	private void setOrderDetail(OrderDetailInfo orderDetailInfo) {
 
@@ -338,12 +361,8 @@ public class OrderDetailActivity extends TopContainActivity implements OnClickLi
 	}
 
 	/**
-	 * 
-	 * @Title: showDialog
-	 * @Description: 弹出提示对话框
-	 * @param 设定文件
-	 * @return void 返回类型
-	 * @throws
+	 * Author ShenYang
+	 * create at 2016/10/25 14:56
 	 */
 	private void showNoticeDialog() {
 		if (customDialog == null) {

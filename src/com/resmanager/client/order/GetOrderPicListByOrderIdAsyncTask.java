@@ -41,7 +41,7 @@ public class GetOrderPicListByOrderIdAsyncTask extends AsyncTask<Void, Void, Str
 	}
 
 	@Override
-	protected String doInBackground(Void... arg0) {
+	protected String doInBackground(Void... arg0) {//// 根据订单编号获取发货时，卸货时，卸货单图片
 		WebServiceUtil ws = new WebServiceUtil(false, ContactsUtils.WS_URL, ContactsUtils.GetOrderPicList);
 		ws.addProperty("UserKey", ContactsUtils.USER_KEY);
 		ws.addProperty("OrderID", orderId);

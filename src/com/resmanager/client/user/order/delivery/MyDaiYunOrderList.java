@@ -5,6 +5,7 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -51,6 +52,7 @@ public class MyDaiYunOrderList extends TopContainActivity implements OnClickList
 				if (daiyunMap.size() > 0) {
 					for (Map.Entry<Integer, Order> entry : daiyunMap.entrySet()) {
 						orders.add(entry.getValue());
+						Log.i("", "hsw"+entry.getValue());
 					}
 					Intent addSourceIntent = new Intent(MyDaiYunOrderList.this, DeliveryActivity.class);
 					addSourceIntent.putExtra("orders", orders);

@@ -28,7 +28,8 @@
             android:textColor="@color/drak_gray"
             android:textColorHint="@color/edit_hint_color"
             android:textCursorDrawable="@null"
-            android:textSize="@dimen/sixteen_size" />
+            android:textSize="@dimen/sixteen_size"
+            android:visibility="gone" />
     </LinearLayout>
 
     <ListView

@@ -97,11 +97,13 @@ public class Tools {
 	 * @return String
 	 */
 	public static String getImageByte(Bitmap bitMap) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();		
 		bitMap.compress(Bitmap.CompressFormat.PNG, 100, baos);
 		byte[] imageBytes = baos.toByteArray();
 		// 将byte加密成base64格式
-		String base64Buff = Base64.encode(imageBytes);
+		// String uploadBuffer = new String(Base64.encode(baos.toByteArray()));  //进行Base64编码 
+		String base64Buff =new String( Base64.encode(imageBytes));
 		return base64Buff;
 	}
 
@@ -791,8 +793,11 @@ public class Tools {
 	 * @throws
 	 */
 	public static String getShowLabelCode(String enLabelCode) {
+		  /* enLabelCode:105&116&114&103&72&75&75&80&80&81&76&72&75&75& */
 		String decryptStr = DESUtils.decrypt(enLabelCode);// 解密后的二维码
 		try {
+			//截取decryptStr：NYWL-000798-00为000798-00
+
 			return decryptStr.substring(5, decryptStr.lastIndexOf("-"));
 		} catch (Exception e) {
 			e.printStackTrace();

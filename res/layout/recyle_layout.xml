@@ -97,7 +97,209 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/default_img" />
         </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="vertical" >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="【回收清单】"
+                android:textColor="@color/drak_gray"
+                android:textSize="@dimen/sixteen_size"
+                android:textStyle="bold" />
+
+       
+           <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="大桶："
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size" />
+
+            <EditText
+                android:id="@+id/dhs_big"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent"
+                android:hint="待回收数4个"
+                android:textColor="@color/middle_gray"
+                   android:numeric="integer"
+                android:textColorHint="@color/light_gray"
+                android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
+         <EditText
+            android:id="@+id/dhs_big_remarktxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="top|left"
+            android:hint="备注"
+            android:minLines="1"
+            android:padding="10dp"
+            android:textColor="@color/middle_gray"
+            android:textColorHint="@color/light_gray"
+            android:textSize="@dimen/sixteen_size" />
+             <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@drawable/fg" />
+              <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="小桶："
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size" />
+
+            <EditText
+                android:id="@+id/dhs_small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent"
+                android:hint="待回收数8个"
+                   android:numeric="integer"
+                android:textColor="@color/middle_gray"
+                android:textColorHint="@color/light_gray"
+                android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
+               <EditText
+            android:id="@+id/dhs_small_remarktxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="top|left"
+            android:hint="备注"
+            android:minLines="1"
+            android:padding="10dp"
+            android:textColor="@color/middle_gray"
+            android:textColorHint="@color/light_gray"
+            android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="vertical" >
+
+      
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@drawable/fg" />
+
+            <TextView
+                android:id="@+id/choose_warehouse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/go"
+                android:padding="10dp"
+                android:text="选择添加回收仓库"
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size"/>
+        </LinearLayout>   
+           <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="原始回收单号："
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size" />
+
+            <EditText
+                android:id="@+id/ysddh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent"
+                android:hint="86121532"
+                android:textColor="@color/middle_gray"
+                android:textColorHint="@color/light_gray"
+                android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
+      <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="签  收  人："
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size" />
+
+            <EditText
+                android:id="@+id/qianshou_man_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent"
+                android:hint="请输入订单签收人姓名"
+                android:textColor="@color/middle_gray"
+                android:textColorHint="@color/light_gray"
+                android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@drawable/fg_color" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="联系方式："
+                android:textColor="@color/middle_gray"
+                android:textSize="@dimen/sixteen_size" />
+
+            <EditText
+                android:id="@+id/qianshou_man_phone_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/transparent"
+                android:hint="请输入签收人联系电话"
+                android:inputType="number"
+                android:textColor="@color/middle_gray"
+                android:textColorHint="@color/light_gray"
+                android:textSize="@dimen/sixteen_size" />
+        </LinearLayout>
         <TextView
             android:id="@+id/resource_recyle_txt"
             android:layout_width="match_parent"
@@ -121,6 +323,7 @@
             android:id="@+id/recyle_remark_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:background="@color/white"
             android:gravity="top|left"
             android:hint="若有标签遗失的桶需要回收，请再此写入备注，注明规格，数量等"

@@ -58,10 +58,10 @@ public class LocationUtils implements AMapLocationListener {
 				ContactsUtils.baseAMapLocation = loc;
 				if (loc != null) {
 					if (ContactsUtils.USER_KEY != null && ContactsUtils.userDetailModel != null) {
-						UpdateUserLocationAsyncTask updateUserLocationAsyncTask = new UpdateUserLocationAsyncTask(String.valueOf(loc.getLongitude()),
+					/*	UpdateUserLocationAsyncTask updateUserLocationAsyncTask = new UpdateUserLocationAsyncTask(String.valueOf(loc.getLongitude()),
 								String.valueOf(loc.getLatitude()));
 						updateUserLocationAsyncTask.execute();// 更新用户坐标
-					}
+*/					}
 					if (ContactsUtils.baseAMapLocation == null) {
 						ContactsUtils.baseAMapLocation = loc;
 					} else if (ContactsUtils.baseAMapLocation.getLatitude() != loc.getLatitude()

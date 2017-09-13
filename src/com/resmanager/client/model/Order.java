@@ -65,6 +65,16 @@ public class Order extends ResultModel {
 	private String TotalMoney;// 总运费
 	private String HasSettled;// 已结算
 	private String NotSettled;// 未结算
+	private String OrderCustomerID;
+	
+
+	public String getOrderCustomerID() {
+		return OrderCustomerID;
+	}
+
+	public void setOrderCustomerID(String orderCustomerID) {
+		OrderCustomerID = orderCustomerID;
+	}
 
 	/**
 	 * @return delivery_Date

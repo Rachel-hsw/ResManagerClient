@@ -20,7 +20,7 @@ import com.resmanager.client.model.RecylePicModel;
 import com.resmanager.client.photo.ImagePagerActivity;
 import com.resmanager.client.user.balance.GetRecylePicAsyncTask.GetRecylePicListener;
 import com.resmanager.client.utils.Tools;
-
+//首页----》我的结算-----》回收结算-----》回收明细
 @SuppressLint("InflateParams")
 public class BalanceRecyleSourceGrid extends TopContainActivity implements OnClickListener, OnItemClickListener {
 	private GridView source_grid;
@@ -52,7 +52,7 @@ public class BalanceRecyleSourceGrid extends TopContainActivity implements OnCli
 		ImageView leftImg = (ImageView) topView.findViewById(R.id.title_left_img);
 		leftImg.setOnClickListener(this);
 		TextView titleContent = (TextView) topView.findViewById(R.id.title_content);
-		titleContent.setText("已添加货物");
+		titleContent.setText("回收单");
 		return topView;
 	}
 

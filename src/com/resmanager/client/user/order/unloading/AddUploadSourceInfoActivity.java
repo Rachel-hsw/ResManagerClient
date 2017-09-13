@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import com.resmanager.client.model.Order;
 import com.resmanager.client.model.ResultModel;
 import com.resmanager.client.model.ScanBimpModel;
 import com.resmanager.client.scan.CatpureActivity;
+import com.resmanager.client.scan.CatpureUnloadActivity;
 import com.resmanager.client.user.order.UploadCache;
 import com.resmanager.client.user.order.unloading.GetInfoByLabelCode.GetInfoByLabelListener;
 import com.resmanager.client.user.order.unloading.UploadingImageAsyncTask.UploadUploadingResourceListener;
@@ -62,6 +64,7 @@ public class AddUploadSourceInfoActivity extends TopContainActivity implements O
 	private CustomDialog noticeDialog;
 	private Order order;
 	private LocationModel locationModel = null;
+	private int SWITCH_QR_CODE=1;//送货扫描二维码是否显示的开关,1是不显示
 	private Handler mHandler = new Handler() {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
@@ -92,11 +95,11 @@ public class AddUploadSourceInfoActivity extends TopContainActivity implements O
 		case R.id.resource_img:
 			Tools.takePhoto(this);
 			break;
-		case R.id.uploading_btn:
+		case R.id.uploading_btn://添加货物界面，
 			checkUploading();// 检查上传
 			break;
 		case R.id.scan_flag_txt:
-			Intent scanIntent = new Intent(this, CatpureActivity.class);
+			Intent scanIntent = new Intent(this, CatpureUnloadActivity.class);
 			scanIntent.putExtra("flagType", -1);// 没有用到
 			startActivityForResult(scanIntent, ContactsUtils.SCAN_RESULT);
 			break;
@@ -117,9 +120,9 @@ public class AddUploadSourceInfoActivity extends TopContainActivity implements O
 		String noticeStr = "";
 		if (scanBimpModel.getBmp() == null || scanBimpModel.getBmpPath().equals("")) {
 			noticeStr = "请添加货物图片";
-		} else if (scanBimpModel.getLabelCode().equals("")) {
+		} else if (scanBimpModel.getLabelCode().equals("")&&SWITCH_QR_CODE!=1) {
 			noticeStr = "请添加货物二维码";
-		} else if (scanBimpModel.getResourceTypeId().equals("")) {
+		} else if (scanBimpModel.getResourceTypeId().equals("")&&SWITCH_QR_CODE!=1) {
 			noticeStr = "请重新扫描二维码";
 		} else {
 			if (noticeDialog == null) {
@@ -169,6 +172,9 @@ public class AddUploadSourceInfoActivity extends TopContainActivity implements O
 		resource_typename_txt = (TextView) centerView.findViewById(R.id.resource_typename_txt);
 		resource_package_type_txt = (TextView) centerView.findViewById(R.id.resource_package_type_txt);
 		scan_flag_txt = (TextView) centerView.findViewById(R.id.scan_flag_txt);
+		   if (SWITCH_QR_CODE==2) {
+		    	scan_flag_txt.setVisibility(View.GONE);	
+			}
 		scan_flag_txt.setOnClickListener(this);
 		uploading_btn = (Button) centerView.findViewById(R.id.uploading_btn);
 		uploading_btn.setOnClickListener(this);
@@ -227,7 +233,10 @@ public class AddUploadSourceInfoActivity extends TopContainActivity implements O
 					scan_flag_txt.setText(Tools.getShowLabelCode(flagContent));
 					scan_flag_txt.setTextColor(getResources().getColor(R.color.red));
 					scanBimpModel.setLabelCode(flagContent);
-					getLabelDetail(DESUtils.decrypt(flagContent));
+					Log.i("scanBimpModel.setLabelCode(flagContent)","xiehuo"+flagContent);
+					getLabelDetail(DESUtils.decrypt(flagContent));///此处传过去的labelcode为NYWL-000798-00模式
+					//把前缀干掉
+//					getLabelDetail(Tools.getShowLabelCode(flagContent));//000798
 				} catch (Exception e) {
 					Tools.showToast(this, "非法的二维码标签");
 					e.printStackTrace();

@@ -16,6 +16,7 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
@@ -23,11 +24,15 @@ import android.widget.TextView;
 
 import com.resmanager.client.R;
 import com.resmanager.client.common.TopContainActivity;
+import com.resmanager.client.user.order.delivery.AddSourceInfoActivity;
+import com.resmanager.client.user.order.delivery.DeliverQingDanActivity;
 import com.resmanager.client.utils.ContactsUtils;
 
 @SuppressLint({ "NewApi", "InflateParams" })
 public class CatpureActivity extends TopContainActivity implements OnClickListener {
 	// 相机
+	//判断是小桶、大桶或者油罐de标记
+	private int P_ID;
 	private Camera mCamera;
 	// 预览视图
 	private CameraPreview mPreview;
@@ -48,6 +53,8 @@ public class CatpureActivity extends TopContainActivity implements OnClickListen
 	public void onCreate(Bundle savedInstanceState) {
 		FLAG_TYPE = getIntent().getExtras().getInt("flagType", -10);
 		super.onCreate(savedInstanceState);
+		P_ID=getIntent().getExtras().getInt("P_ID");
+		Log.i("P_IDjeishou", "hsw"+P_ID);
 		// 自动聚焦线程
 		mAutoFocusHandler = new Handler();
 		// 获取相机实例
@@ -82,7 +89,6 @@ public class CatpureActivity extends TopContainActivity implements OnClickListen
 			IsPreview = true;
 			mCamera.autoFocus(autoFocusCB);
 		}
-
 		TextView contentView = (TextView) topView.findViewById(R.id.title_content);
 		contentView.setText("二维码扫描");
 		topView.findViewById(R.id.title_left_img).setOnClickListener(this);
@@ -171,6 +177,10 @@ public class CatpureActivity extends TopContainActivity implements OnClickListen
 						it.putExtra("result", mSym.getData());
 						it.putExtra("flagType", FLAG_TYPE);
 						setResult(ContactsUtils.SCAN_RESULT, it);
+					/*	Intent it=new Intent(getApplicationContext(), AddSourceInfoActivity.class);
+						it.putExtra("result", mSym.getData());
+						it.putExtra("flagType", FLAG_TYPE);
+						startActivity(it);*/
 						finish();
 						// 这里需要注意的是，getData方法才是最终返回识别结果的方法
 						// 但是这个方法是返回一个标识型的字符串，换言之，返回的值中包含每个字符串的含义

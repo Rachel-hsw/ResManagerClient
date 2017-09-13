@@ -83,7 +83,32 @@
             android:text="点击查看货物信息"
             android:textColor="@color/middle_gray"
             android:textSize="@dimen/sixteen_size" />
+ <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:padding="10dp" >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:drawablePadding="5dp"
+                android:editable="false"
+                android:gravity="center_vertical"
+                android:hint="上传签收单照片"
+                android:textSize="@dimen/sixteen_size" />
+
+            <ImageView
+                android:id="@+id/add_upload_id_img"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="5dp"
+                android:minHeight="150dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/default_img" />
+        </LinearLayout>
         <EditText
             android:id="@+id/remark_txt"
             android:layout_width="match_parent"

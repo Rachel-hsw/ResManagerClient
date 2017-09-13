@@ -33,7 +33,7 @@ import android.os.AsyncTask;
  */
 public class ConfirnUploadingAsyncTask extends AsyncTask<Void, Void, String> {
 	private String workId;
-	private String saleoid;
+	private String saleoid,shiji_weight;
 	private String locaitonName;
 	private String locationAddr;
 	private String lon;
@@ -47,13 +47,14 @@ public class ConfirnUploadingAsyncTask extends AsyncTask<Void, Void, String> {
 	private Bitmap uploadingImg;// 卸货单
 	private String orderId;
 	private int IsInsteadXH;
+	
 
 	public ConfirnUploadingAsyncTask(Context context, String workId, String orderId, String saleoid, String locationName, String locationAddr, String lon,
-			String lat, String discharge_Remark, String deliveryMan, String deliveryTel, Bitmap uploadingImg, int IsInsteadXH) {
+			String lat, String discharge_Remark, String deliveryMan, String deliveryTel, Bitmap uploadingImg, int IsInsteadXH,String shiji_weight) {
 		this.context = context;
 		this.workId = workId;
 		this.orderId = orderId;
-		this.saleoid = saleoid;
+		this.saleoid = saleoid;//原始订单号
 		this.lat = lat;
 		this.locaitonName = locationName;
 		this.locationAddr = locationAddr;
@@ -63,6 +64,7 @@ public class ConfirnUploadingAsyncTask extends AsyncTask<Void, Void, String> {
 		this.deliveryTel = deliveryTel;
 		this.uploadingImg = uploadingImg;
 		this.IsInsteadXH = IsInsteadXH;
+		this.shiji_weight=shiji_weight;
 	}
 
 	@Override
@@ -82,6 +84,7 @@ public class ConfirnUploadingAsyncTask extends AsyncTask<Void, Void, String> {
 		ws.addProperty("image", Tools.getImageByte(uploadingImg));
 		ws.addProperty("fileName", this.saleoid + ".jpg");
 		ws.addProperty("IsInsteadXH", IsInsteadXH);
+		ws.addProperty("shijiweight", shiji_weight);
 		try {
 			String json = ws.start();
 			return json;
